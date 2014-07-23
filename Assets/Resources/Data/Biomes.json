@@ -1,0 +1,121 @@
+[
+	{
+		"Name" : "Plains",
+		"ValidTiles" : [
+			{
+            "Name" : "Grass",
+            "Chance" : 1
+         }
+		],
+      "ValidResources" : [
+         {
+            "Name" : "DeciduousTree",
+            "Chance" : 0.1
+         }
+      ],
+		"Requirements" :
+		{
+         "Height" :
+         {
+            "Min" : 10,
+            "Max" : 70
+         },
+			"Temperature" :
+			{
+				"Min" : 0,
+				"Max" : 0.34
+			},
+			"Rainfall" :
+			{
+				"Min" : 0,
+				"Max" : 1
+			}
+		}
+	},
+	{
+		"Name" : "Hills",
+		"ValidTiles" : [
+			{
+            "Name" : "Grass",
+            "Chance" : 0.98
+         },
+         {
+            "Name" : "Stone",
+            "Chance" : 0.02
+         }
+		],
+      "ValidResources" : [
+         {
+            "Name" : "DeciduousTree",
+            "Chance" : 0.1
+         },
+         {
+            "Name" : "IronOre",
+            "Chance" : 0.02
+         }
+      ],
+		"Requirements" :
+		{
+         "Height" :
+         {
+            "Min" : 10,
+            "Max" : 150
+         },
+			"Temperature" :
+			{
+				"Min" : 0.34,
+				"Max" : 0.67
+			},
+			"Rainfall" :
+			{
+				"Min" : 0,
+				"Max" : 1
+			}
+		}
+	},
+	{
+		"Name" : "Mountainous",
+		"ValidTiles" : [
+         {
+            "Name" : "Stone",
+            "Chance" : 0.975
+         },
+			{
+            "Name" : "Grass",
+            "Chance" : 0.025
+         }
+		],
+      "ValidResources" : [
+         {
+            "Name" : "DeciduousTree",
+            "Chance" : 0.1
+         },
+         {
+            "Name" : "IronOre",
+            "Chance" : 0.1
+         },
+         {
+            "Name" : "CopperOre",
+            "Chance" : 0.1
+         }
+      ],
+		"Requirements" :
+		{
+         "Height" :
+         {
+            "Min" : 10,
+            "Max" : 250
+         },
+			"Temperature" :
+			{
+				"Min" : 0.67,
+				"Max" : 1
+			},
+			"Rainfall" :
+			{
+				"Min" : 0,
+				"Max" : 1
+			}
+		}
+	}
+]

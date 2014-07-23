@@ -1,0 +1,69 @@
+[
+   {
+      "Name" : "DeciduousTree",
+      "ImagePath" : "Prefabs/GameResources/Tree/Tree",
+      "Placement" : [
+         "Dirt",
+         "Grass"
+      ],
+      "Action" : {
+         "Requirements" : [
+            {
+               "Type" : "Worker",
+               "Value" : "Woodcutter"
+            },
+            {
+               "Type" : "Equipment",
+               "Value" : "LumberAxe"
+            }
+         ],
+         "Time" : 10,
+         "ProductionResource" : "DeciduousLog",
+         "ProductionAmount" : 5
+      }
+   },
+   {
+      "Name" : "IronOre",
+      "ImagePath" : "Prefabs/GameResources/IronOre/IronOre",
+      "Placement" : [
+         "Stone"
+      ],
+      "Action" : {
+         "Requirements" : [
+            {
+               "Type" : "Worker",
+               "Value" : "Miner"
+            },
+            {
+               "Type" : "Equipment",
+               "Value" : "Pickaxe"
+            }
+         ],
+         "Time" : 10,
+         "ProductionResource" : "IronCrushed",
+         "ProductionAmount" : 5
+      }
+   },
+   {
+      "Name" : "CopperOre",
+      "ImagePath" : "Prefabs/GameResources/CopperOre/CopperOre",
+      "Placement" : [
+         "Stone"
+      ],
+      "Action" : {
+         "Requirements" : [
+            {
+               "Type" : "Worker",
+               "Value" : "Miner"
+            },
+            {
+               "Type" : "Equipment",
+               "Value" : "Pickaxe"
+            }
+         ],
+         "Time" : 10,
+         "ProductionResource" : "CopperCrushed",
+         "ProductionAmount" : 5
+      }
+   }
+]
