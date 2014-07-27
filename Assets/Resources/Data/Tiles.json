@@ -1,22 +1,22 @@
 [
    {
       "Name" : "Grass",
-      "ImagePath" : "Prefabs/Tiles/Grass/Grass",
+      "ImagePath" : "Art/Tiles/Grass/Grass",
       "Traversable" : "True"
    },
    {
       "Name" : "Dirt",
-      "ImagePath" : "Prefabs/Tiles/Dirt/Dirt",
+      "ImagePath" : "Art/Tiles/Dirt/Dirt",
       "Traversable" : "True"
    },
    {
       "Name" : "Stone",
-      "ImagePath" : "Prefabs/Tiles/Stone/Stone",
+      "ImagePath" : "Art/Tiles/Stone/Stone",
       "Traversable" : "True"
    },
    {
       "Name" : "Water",
-      "ImagePath" : "Prefabs/Tiles/Water/Water",
+      "ImagePath" : "Art/Tiles/Water/Water",
       "Traversable" : "False"
    }
 ]

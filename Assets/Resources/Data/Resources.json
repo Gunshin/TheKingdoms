@@ -1,7 +1,7 @@
 [
    {
       "Name" : "DeciduousTree",
-      "ImagePath" : "Prefabs/GameResources/Tree/Tree",
+      "ImagePath" : "Art/GameResources/Tree/Tree",
       "Placement" : [
          "Dirt",
          "Grass"
@@ -24,7 +24,7 @@
    },
    {
       "Name" : "IronOre",
-      "ImagePath" : "Prefabs/GameResources/IronOre/IronOre",
+      "ImagePath" : "Art/GameResources/IronOre/IronOre",
       "Placement" : [
          "Stone"
       ],
@@ -46,7 +46,7 @@
    },
    {
       "Name" : "CopperOre",
-      "ImagePath" : "Prefabs/GameResources/CopperOre/CopperOre",
+      "ImagePath" : "Art/GameResources/CopperOre/CopperOre",
       "Placement" : [
          "Stone"
       ],

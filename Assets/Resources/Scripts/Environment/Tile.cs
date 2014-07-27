@@ -81,7 +81,9 @@ public class Tile : MonoBehaviour
 
          Tile tile = tileObj.AddComponent<Tile>();
          tile.SetName(name);
-         tile.GetNode().set_traversable(jsonData[i]["Traversable"].Equals("True"));
+
+         string traversableValue = jsonData[i]["Traversable"];
+         tile.GetNode().set_traversable(traversableValue.Equals("True"));
 
          Add(tile);
 

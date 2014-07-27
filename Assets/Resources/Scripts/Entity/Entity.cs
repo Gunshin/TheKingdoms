@@ -7,6 +7,9 @@ public class Entity : MonoBehaviour {
 
    [SerializeField]
    Node[] path;
+   int currentPosition = 0;
+
+   float speed = 1f;
 
 	// Use this for initialization
 	void Start () {
@@ -26,7 +29,24 @@ public class Entity : MonoBehaviour {
       {
          for(int i = 0; i < path.Length - 1; ++i)
          {
-            Debug.DrawLine(new Vector3((float)path[i].get_x(), (float)path[i].get_y(), -0.2f), new Vector3((float)path[i + 1].get_x(), (float)path[i + 1].get_y(), -0.2f), Color.red, 99999f);
+            Debug.DrawLine(new Vector3((float)path[i].get_x(), (float)path[i].get_y(), -0.2f), new Vector3((float)path[i + 1].get_x(), (float)path[i + 1].get_y(), -0.2f), Color.red, 9999f);
+         }
+
+         if (currentPosition < path.Length)
+         {
+            Vector2 target = new Vector2((float)path[currentPosition].get_x(), (float)path[currentPosition].get_y());
+            transform.position = Vector2.MoveTowards(transform.position, target, speed * Time.deltaTime);
+
+            if ((Vector2)transform.position == target)
+            {
+               currentPosition++;
+            }
+            
+         }
+         else
+         {
+            currentPosition = 0;
+            path = null;
          }
       }
 
@@ -34,31 +54,20 @@ public class Entity : MonoBehaviour {
 
    public void GenerateNewPath()
    {
-      //Debug.Log("running");
 
       int targetX = Random.Range(0, ProcTerrain.instance.GetWidth());
       int targetY = Random.Range(0, ProcTerrain.instance.GetHeight());
 
-      //Debug.Log("proc terrain = " + targetX + " _____ " + targetY);
-
       Tile currentTile = ProcTerrain.instance.GetTile((int)transform.position.x, (int)transform.position.y);
       Tile targetTile = ProcTerrain.instance.GetTile(targetX, targetY);
-
-      //Debug.Log("check: " + (currentTile == targetTile) + " and node: " + (currentTile.GetNode() == targetTile.GetNode()));
-
-      Debug.Log("finding path from " + currentTile.GetNode().get_x() + " to " + targetTile.transform.position);
-
-      Debug.Log("pathfinder = " + (ProcTerrain.pathfinder == null) + " ____ " + (targetTile.GetNode() == null));
-
       Array<object> newPath = ProcTerrain.pathfinder.FindPath(currentTile.GetNode(), targetTile.GetNode());
-
-      Debug.Log("found path of length = " + newPath.length);
 
       path = new Node[newPath.length];
 
-      for(int i = 0; i < path.Length; ++i)
+      for (int i = 0; i < path.Length; ++i)
       {
          path[i] = (Node)newPath[i];
       }
+
    }
 }

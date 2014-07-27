@@ -76,22 +76,25 @@ public class Environment
    public Tile GenerateLocation(int x_, int y_, GameObject parent_)
    {
 
-      Tile tile = GetTile(x_, y_);
+      Tile tilePrefab = GetTile(x_, y_);
 
-      GameObject tileObj = (GameObject)GameObject.Instantiate(tile.gameObject, new Vector3(x_, y_, 0), Quaternion.identity);
+      GameObject tileObj = (GameObject)GameObject.Instantiate(tilePrefab.gameObject, new Vector3(x_, y_, 0), Quaternion.identity);
       tileObj.transform.parent = parent_.transform;
       tileObj.SetActive(true);
 
-      GameResource resource = GetResource(x_, y_, tile);
+      Tile tile = tileObj.GetComponent<Tile>();
+      tile.GetNode().set_traversable(tilePrefab.GetNode().get_traversable());
+
+      GameResource resource = GetResource(x_, y_, tilePrefab);
 
       if (resource != null)
       {
-         GameObject resourceObj = (GameObject)GameObject.Instantiate(resource.ResourcePrefab, tileObj.transform.position + new Vector3(0, 0, -0.1f), Quaternion.identity);
+         GameObject resourceObj = (GameObject)GameObject.Instantiate(resource.ResourcePrefab, tileObj.transform.position + new Vector3(0, 0, -0.00001f), Quaternion.identity);
          resourceObj.transform.parent = parent_.transform;
          resourceObj.SetActive(true);
       }
 
-      return tileObj.GetComponent<Tile>();
+      return tile;
 
    }
 

@@ -80,19 +80,18 @@ public class Chunk{
             {
                for(int b = -1; b < 2; ++b)
                {
-                  if (a == 0 && b == 0)
-                     continue;
-
-                  int neighbourX = (int)tiles[i][j].transform.position.x + a;
-                  int neighbourY = (int)tiles[i][j].transform.position.y + b;
-
-                  Tile tile = ProcTerrain.instance.GetTile(neighbourX, neighbourY);
-
-                  if (tile != null)
+                  if (!(a == 0 && b == 0))
                   {
-                     tiles[i][j].GetNode().AddNeighbour(tile.GetNode(), new haxe.lang.Null<double>());
-                  }
+                     int neighbourX = (int)tiles[i][j].transform.position.x + a;
+                     int neighbourY = (int)tiles[i][j].transform.position.y + b;
 
+                     Tile tile = ProcTerrain.instance.GetTile(neighbourX, neighbourY);
+
+                     if (tile != null)
+                     {
+                        tiles[i][j].GetNode().AddNeighbour(tile.GetNode(), new haxe.lang.Null<double>());
+                     }
+                  }
                }
             }
 

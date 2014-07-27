@@ -83,7 +83,7 @@ public class ProcTerrain : MonoBehaviour
 
       GameObject entityPrefab = Resources.Load<GameObject>("Prefabs/Entity/Entity");
 
-      Instantiate(entityPrefab, new Vector3(10, 10, 0), Quaternion.identity);
+      Instantiate(entityPrefab, new Vector3(0, 0, 0), Quaternion.identity);
 
       //foreach (VoronoiPolygon polygon in voronoi.Polygons)
       //{
@@ -120,15 +120,22 @@ public class ProcTerrain : MonoBehaviour
 
    public Tile GetTile(int x_, int y_)
    {
+      //Debug.Log(x_ + " _____ " + y_);
+
       int indexX = x_ / Chunk.GetWidth();
       int indexY = y_ / Chunk.GetHeight();
 
-      int tileXOffset = x_ % Chunk.GetWidth();
-      int tileYOffset = y_ % Chunk.GetHeight();
+      if (indexX >= 0 && indexX < chunkIndexWidth && indexY >= 0 && indexY < chunkIndexHeight)
+      {
 
-      //Debug.Log(indexX + " ___ " + indexY + " ________________ " + tileXOffset + " ______ " + tileYOffset);
+         int tileXOffset = x_ % Chunk.GetWidth();
+         int tileYOffset = y_ % Chunk.GetHeight();
 
-      return chunks[indexX][indexY].GetTile(tileXOffset, tileYOffset);
+         //Debug.Log(indexX + " ___ " + indexY + " ________________ " + tileXOffset + " ______ " + tileYOffset);
+
+         return chunks[indexX][indexY].GetTile(tileXOffset, tileYOffset);
+      }
+      return null;
    }
 
    public int GetWidth()
