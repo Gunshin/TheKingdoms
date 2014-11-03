@@ -8,143 +8,142 @@ using pathPlanner;
 public class ProcTerrain : MonoBehaviour
 {
 
-   public static ProcTerrain instance = null;
+    public static ProcTerrain instance = null;
 
-   public static IPathfinder pathfinder = new AStar();
+    public static IPathfinder pathfinder = new AStar();
 
-   public int lloydRelaxCount = 0;
+    public int lloydRelaxCount = 0;
 
-   public int chunkIndexWidth, chunkIndexHeight;
-   Chunk[][] chunks;
+    public int chunkIndexWidth, chunkIndexHeight;
+    Chunk[][] chunks;
 
-   public int pointsCount = 64;
+    public int pointsCount = 64;
 
-   int seed = 231;
+    int seed = 231;
 
-   Voronoi voronoi;
+    Voronoi voronoi;
 
-   Texture2D map;
+    Texture2D map;
 
-   void Start()
-   {
-      instance = this;
-      //tilePrefabs = Resources.Load<GameObject>("Prefabs/Tiles/Dirt/Dirt");
-      //resources = new GameObject[1];
-      //resources[0] = (GameObject)Resources.Load<GameObject>("Prefabs/GameResources/Tree/Prefab_Res_Tree");
+    void Start()
+    {
+        instance = this;
+        //tilePrefabs = Resources.Load<GameObject>("Prefabs/Tiles/Dirt/Dirt");
+        //resources = new GameObject[1];
+        //resources[0] = (GameObject)Resources.Load<GameObject>("Prefabs/GameResources/Tree/Prefab_Res_Tree");
 
-      //tiles = new GameObject[width][];
+        //tiles = new GameObject[width][];
 
-      //for (int i = 0; i < tiles.Length; ++i)
-      //{
-      //   tiles[i] = new GameObject[height];
-      //   for (int j = 0; j < tiles[i].Length; ++j)
-      //   {
-      //      tiles[i][j] = (GameObject)Instantiate(tilePrefabs[Random.Range(0, tilePrefabs.Length)], new Vector3(i, j, 0) + transform.position, Quaternion.AngleAxis(0, new Vector3(0, 0, 1)));
-      //      tiles[i][j].transform.parent = transform;
-      //   }
-      //}
+        //for (int i = 0; i < tiles.Length; ++i)
+        //{
+        //   tiles[i] = new GameObject[height];
+        //   for (int j = 0; j < tiles[i].Length; ++j)
+        //   {
+        //      tiles[i][j] = (GameObject)Instantiate(tilePrefabs[Random.Range(0, tilePrefabs.Length)], new Vector3(i, j, 0) + transform.position, Quaternion.AngleAxis(0, new Vector3(0, 0, 1)));
+        //      tiles[i][j].transform.parent = transform;
+        //   }
+        //}
 
-      //for(int i = 0; i < 1000; ++i)
-      //{
-      //   GameObject obj = (GameObject)Instantiate(resources[0], new Vector3(Random.Range(0, width), Random.Range(0, height), -0.01f) + transform.position, Quaternion.identity);
-      //   obj.transform.parent = transform;
-      //}
+        //for(int i = 0; i < 1000; ++i)
+        //{
+        //   GameObject obj = (GameObject)Instantiate(resources[0], new Vector3(Random.Range(0, width), Random.Range(0, height), -0.01f) + transform.position, Quaternion.identity);
+        //   obj.transform.parent = transform;
+        //}
 
-      //List<Vector2> points = new List<Vector2>();
+        //List<Vector2> points = new List<Vector2>();
 
-      //for (int i = 0; i < pointsCount; ++i)
-      //{
-      //   int x = Random.Range(0, width), y = Random.Range(0, height);
-      //   points.Add(new Vector2(x, y));
-      //}
+        //for (int i = 0; i < pointsCount; ++i)
+        //{
+        //   int x = Random.Range(0, width), y = Random.Range(0, height);
+        //   points.Add(new Vector2(x, y));
+        //}
 
-      //voronoi = new Voronoi(width, height, points);
-      //voronoi.lloydRelaxation(lloydRelaxCount);
+        //voronoi = new Voronoi(width, height, points);
+        //voronoi.lloydRelaxation(lloydRelaxCount);
 
-      Environment environment = new Environment(seed);
-      chunks = new Chunk[chunkIndexWidth][];
+        Environment environment = new Environment(seed);
+        chunks = new Chunk[chunkIndexWidth][];
 
-      for(int i = 0; i < chunkIndexWidth; ++i)
-      {
-         chunks[i] = new Chunk[chunkIndexHeight];
-         for(int j = 0; j < chunkIndexHeight; ++j)
-         {
-            chunks[i][j] = new Chunk(i, j, environment);
-         }
-      }
+        for (int i = 0; i < chunkIndexWidth; ++i)
+        {
+            chunks[i] = new Chunk[chunkIndexHeight];
+            for (int j = 0; j < chunkIndexHeight; ++j)
+            {
+                GameObject chunkObject = new GameObject("Chunk " + i + " _ " + j);
+                chunkObject.transform.position = new Vector3(i * Chunk.GetWidth(), j * Chunk.GetHeight());
 
-      for (int i = 0; i < chunkIndexWidth; ++i)
-      {
-         for (int j = 0; j < chunkIndexHeight; ++j)
-         {
-            chunks[i][j].SetBaseNodeConnections();
-         }
-      }
+                chunks[i][j] = chunkObject.AddComponent<Chunk>();
+                chunks[i][j].GenerateTiles(environment);
+            }
+        }
 
-      GameObject entityPrefab = Resources.Load<GameObject>("Prefabs/Entity/Entity");
+        GameObject entityPrefab = Resources.Load<GameObject>("Prefabs/Entity/Entity");
 
-      Instantiate(entityPrefab, new Vector3(0, 0, 0), Quaternion.identity);
+        int enemyCount = 1;
 
-      //foreach (VoronoiPolygon polygon in voronoi.Polygons)
-      //{
-      //   polygon.Color = new Color(255, 0, 0);
+        for (int i = 0; i < enemyCount; ++i)
+            Instantiate(entityPrefab, new Vector3(0, 0, 0), Quaternion.identity);
 
-      //   GameObject biomeType = biomes[Random.Range(0, biomes.Length)];
+        //foreach (VoronoiPolygon polygon in voronoi.Polygons)
+        //{
+        //   polygon.Color = new Color(255, 0, 0);
 
-      //   GameObject biomeObj = (GameObject)Instantiate(biomeType, polygon.getCalculatedCentre(), Quaternion.identity);
-      //   biomeObj.transform.parent = transform;
+        //   GameObject biomeType = biomes[Random.Range(0, biomes.Length)];
 
-      //   //Biome biome = biomeObj.GetComponent<Biome>();
-      //   //biome.TilePositions = polygon.PointsAsVector;
+        //   GameObject biomeObj = (GameObject)Instantiate(biomeType, polygon.getCalculatedCentre(), Quaternion.identity);
+        //   biomeObj.transform.parent = transform;
 
-         
-      //}
+        //   //Biome biome = biomeObj.GetComponent<Biome>();
+        //   //biome.TilePositions = polygon.PointsAsVector;
 
-      //voronoi.toTexture2D(out map);
 
-      //MeshRenderer render = GetComponent<MeshRenderer>();
-      //render.material.mainTexture = map;
+        //}
 
-   }
+        //voronoi.toTexture2D(out map);
 
-   // Update is called once per frame
-   void Update()
-   {
+        //MeshRenderer render = GetComponent<MeshRenderer>();
+        //render.material.mainTexture = map;
 
-   }
+    }
 
-   public Chunk GetChunk(int x_, int y_)
-   {
-      return chunks[x_][y_];
-   }
+    // Update is called once per frame
+    void Update()
+    {
 
-   public Tile GetTile(int x_, int y_)
-   {
-      //Debug.Log(x_ + " _____ " + y_);
+    }
 
-      int indexX = x_ / Chunk.GetWidth();
-      int indexY = y_ / Chunk.GetHeight();
+    public Chunk GetChunk(int x_, int y_)
+    {
+        return chunks[x_][y_];
+    }
 
-      if (indexX >= 0 && indexX < chunkIndexWidth && indexY >= 0 && indexY < chunkIndexHeight)
-      {
+    public Tile GetTile(int x_, int y_)
+    {
+        //Debug.Log(x_ + " _____ " + y_);
 
-         int tileXOffset = x_ % Chunk.GetWidth();
-         int tileYOffset = y_ % Chunk.GetHeight();
+        int indexX = x_ / Chunk.GetWidth();
+        int indexY = y_ / Chunk.GetHeight();
 
-         //Debug.Log(indexX + " ___ " + indexY + " ________________ " + tileXOffset + " ______ " + tileYOffset);
+        if (indexX >= 0 && indexX < chunkIndexWidth && indexY >= 0 && indexY < chunkIndexHeight)
+        {
 
-         return chunks[indexX][indexY].GetTile(tileXOffset, tileYOffset);
-      }
-      return null;
-   }
+            int tileXOffset = x_ % Chunk.GetWidth();
+            int tileYOffset = y_ % Chunk.GetHeight();
 
-   public int GetWidth()
-   {
-      return chunkIndexWidth * Chunk.GetWidth();
-   }
+            //Debug.Log(indexX + " ___ " + indexY + " ________________ " + tileXOffset + " ______ " + tileYOffset);
 
-   public int GetHeight()
-   {
-      return chunkIndexHeight * Chunk.GetHeight();
-   }
+            return chunks[indexX][indexY].GetTile(tileXOffset, tileYOffset);
+        }
+        return null;
+    }
+
+    public int GetWidth()
+    {
+        return chunkIndexWidth * Chunk.GetWidth();
+    }
+
+    public int GetHeight()
+    {
+        return chunkIndexHeight * Chunk.GetHeight();
+    }
 }

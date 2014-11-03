@@ -1,7 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
 using SimpleJSON;
-using UnityEditor;
 using System.Collections;
 
 public class ResourceRequirement

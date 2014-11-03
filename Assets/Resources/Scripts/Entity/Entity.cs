@@ -1,73 +1,69 @@
 ﻿using UnityEngine;
-using System.Collections;
+using System.Collections.Generic;
 
 using pathPlanner;
 
-public class Entity : MonoBehaviour {
+public class Entity : MonoBehaviour
+{
 
-   [SerializeField]
-   Node[] path;
-   int currentPosition = 0;
+    [SerializeField]
+    List<Vector2> path;
 
-   float speed = 1f;
+    float speed = 1f;
 
-	// Use this for initialization
-	void Start () {
+    // Use this for initialization
+    void Start()
+    {
 
-      
+        path = new List<Vector2>();
 
-	}
-	
-	// Update is called once per frame
-	void Update () {
-	   
-      if(path == null)
-      {
-         GenerateNewPath();
-      }
-      else
-      {
-         for(int i = 0; i < path.Length - 1; ++i)
-         {
-            Debug.DrawLine(new Vector3((float)path[i].get_x(), (float)path[i].get_y(), -0.2f), new Vector3((float)path[i + 1].get_x(), (float)path[i + 1].get_y(), -0.2f), Color.red, 9999f);
-         }
+    }
 
-         if (currentPosition < path.Length)
-         {
-            Vector2 target = new Vector2((float)path[currentPosition].get_x(), (float)path[currentPosition].get_y());
-            transform.position = Vector2.MoveTowards(transform.position, target, speed * Time.deltaTime);
+    // Update is called once per frame
+    void Update()
+    {
 
-            if ((Vector2)transform.position == target)
+        if (path.Count == 0)
+        {
+            GenerateNewPath();
+        }
+        else
+        {
+            for (int i = 0; i < path.Count - 1; ++i)
             {
-               currentPosition++;
+                Debug.DrawLine(new Vector3(path[i].x, path[i].y, -0.2f), new Vector3(path[i + 1].x, path[i + 1].y, -0.2f), Color.red);
             }
-            
-         }
-         else
-         {
-            currentPosition = 0;
-            path = null;
-         }
-      }
 
-	}
+            transform.position = Vector2.MoveTowards(transform.position, path[0], speed * Time.deltaTime);
 
-   public void GenerateNewPath()
-   {
+            if ((Vector2)transform.position == path[0])
+            {
+                path.RemoveAt(0);
+            }
+        }
 
-      int targetX = Random.Range(0, ProcTerrain.instance.GetWidth());
-      int targetY = Random.Range(0, ProcTerrain.instance.GetHeight());
+    }
 
-      Tile currentTile = ProcTerrain.instance.GetTile((int)transform.position.x, (int)transform.position.y);
-      Tile targetTile = ProcTerrain.instance.GetTile(targetX, targetY);
-      Array<object> newPath = ProcTerrain.pathfinder.FindPath(currentTile.GetNode(), targetTile.GetNode());
+    public void GenerateNewPath()
+    {
 
-      path = new Node[newPath.length];
+        int targetX = Random.Range(0, ProcTerrain.instance.GetWidth());
+        int targetY = Random.Range(0, ProcTerrain.instance.GetHeight());
 
-      for (int i = 0; i < path.Length; ++i)
-      {
-         path[i] = (Node)newPath[i];
-      }
+        Tile currentTile = ProcTerrain.instance.GetTile((int)transform.position.x, (int)transform.position.y);
+        Tile targetTile = ProcTerrain.instance.GetTile(targetX, targetY);
 
-   }
+        Array<object> newPath = ProcTerrain.pathfinder.FindPath(currentTile.GetNode(), targetTile.GetNode());
+
+        path.Clear();
+
+        for (int i = 0; i < newPath.length; ++i)
+        {
+            Node node = (Node)newPath[i];
+            path.Add(new Vector2((float)node.get_x(), (float)node.get_y()));
+        }
+
+        //Debug.Log("target = " + targetX + " " + targetY);
+        Debug.Log("current = " + currentTile.transform.position + " target = " + targetTile.transform.position);
+    }
 }
