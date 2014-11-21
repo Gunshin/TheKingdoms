@@ -79,7 +79,7 @@ public class ProcTerrain : MonoBehaviour
 
         GameObject entityPrefab = Resources.Load<GameObject>("Prefabs/Entity/Entity");
 
-        int enemyCount = 1;
+        int enemyCount = 100;
 
         for (int i = 0; i < enemyCount; ++i)
             Instantiate(entityPrefab, new Vector3(0, 0, 0), Quaternion.identity);

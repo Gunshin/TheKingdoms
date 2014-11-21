@@ -82,7 +82,7 @@ public class Chunk : MonoBehaviour
             for (int j = 0; j < height; ++j)
             {
 
-                Debug.Log("node = " + tiles[i][j].transform.position);
+                //Debug.Log("node = " + tiles[i][j].transform.position);
                 for (int a = -1; a < 2; ++a)
                 {
                     for (int b = -1; b < 2; ++b)

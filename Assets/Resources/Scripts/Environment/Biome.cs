@@ -94,17 +94,17 @@ public class BiomeRequirements
 
    public bool HeightIsWithinBounds(float height_)
    {
-      return height_ > heightMin ? (height_ <= heightMax ? true : false) : false;
+      return height_ > heightMin && height_ <= heightMax ? true : false;
    }
 
    public bool TemperatureIsWithinBounds(float temperature_)
    {
-      return temperature_ > temperatureMin ? (temperature_ <= temperatureMax ? true : false) : false;
+      return temperature_ > temperatureMin && temperature_ <= temperatureMax ? true : false;
    }
 
    public bool RainfallIsWithinBounds(float rainfall_)
    {
-      return rainfall_ > rainfallMin ? (rainfall_ <= rainfallMax ? true : false) : false;
+      return rainfall_ > rainfallMin && rainfall_ <= rainfallMax ? true : false;
    }
 }
 

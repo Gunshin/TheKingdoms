@@ -24,7 +24,7 @@ public class Tile : MonoBehaviour
     {
         if (node == null)
         {
-            node = new Node(transform.position.x, transform.position.y, false);
+            node = new Node(transform.position.x, transform.position.y, false, new GraphStructureIndirect());
         }
         return node;
     }
@@ -40,9 +40,9 @@ public class Tile : MonoBehaviour
     {
         if (debugShowNeighbours)
         {
-            for (int i = 0; i < node.get_neighbours().length; ++i)
+            for (int i = 0; i < node.GetNeighbours().length; ++i)
             {
-                Node neighbour = ((DistanceNode)node.get_neighbours()[i]).connectedNode;
+                Node neighbour = ((DistanceNode)node.GetNeighbours()[i]).connectedNode;
                 Debug.DrawLine(transform.position, new Vector3((float)neighbour.get_x(), (float)neighbour.get_y(), transform.position.z));
             }
         }
@@ -66,6 +66,8 @@ public class Tile : MonoBehaviour
     public static bool Load(string filePath_)
     {
         TextAsset asset = (TextAsset)Resources.Load(filePath_);
+		
+		GameObject prefab = Resources.Load<GameObject>("Prefabs/Quad");
 
         if (asset == null)
         {
@@ -78,8 +80,6 @@ public class Tile : MonoBehaviour
         for (int i = 0; i < jsonData.Count; ++i)
         {
             string name = jsonData[i]["Name"];
-
-            GameObject prefab = Resources.Load<GameObject>("Prefabs/Quad");
 
             GameObject tileObj = (GameObject)GameObject.Instantiate(prefab);
             tileObj.name = name;

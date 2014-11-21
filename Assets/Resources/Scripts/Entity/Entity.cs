@@ -53,7 +53,12 @@ public class Entity : MonoBehaviour
         Tile currentTile = ProcTerrain.instance.GetTile((int)transform.position.x, (int)transform.position.y);
         Tile targetTile = ProcTerrain.instance.GetTile(targetX, targetY);
 
-        Array<object> newPath = ProcTerrain.pathfinder.FindPath(currentTile.GetNode(), targetTile.GetNode());
+        Array<object> newPath = ProcTerrain.pathfinder.FindPath(currentTile.GetNode(), targetTile.GetNode(),
+            (x, y) => 
+            {
+                return Mathf.Sqrt(Mathf.Pow((float)(x.x - y.x), 2) + Mathf.Pow((float)(x.y - y.y), 2));
+            }
+        );
 
         path.Clear();
 

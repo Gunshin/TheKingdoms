@@ -5,97 +5,98 @@ using System.Collections.Generic;
 public class Environment
 {
 
-   PerlinNoise temperature;
-   PerlinNoise rainfall;
+    PerlinNoise temperature;
+    PerlinNoise rainfall;
 
-   public Environment(int seed_)
-   {
-      temperature = new PerlinNoise(seed_);
-      rainfall = new PerlinNoise(seed_ + 1);
-   }
+    public Environment(int seed_)
+    {
+        temperature = new PerlinNoise(seed_);
+        rainfall = new PerlinNoise(seed_ + 1);
+    }
 
-   int zoom = 32, octaves = 7;
+    int zoom = 32, octaves = 7;
 
-   public Biome GetBiomeType(int x_, int y_)
-   {
+    public Biome GetBiomeType(int x_, int y_)
+    {
 
-      float t = temperature.getPerlinNoise(x_, y_, 0.4f, octaves, zoom) / 2 + 0.5f;
-      float r = rainfall.getPerlinNoise(x_, y_, 0.4f, octaves, zoom) / 2 + 0.5f;
+        float t = temperature.getPerlinNoise(x_, y_, 0.4f, octaves, zoom) / 2 + 0.5f;
+        float r = rainfall.getPerlinNoise(x_, y_, 0.4f, octaves, zoom) / 2 + 0.5f;
 
-      return Biome.GetBiome(t, r);
-   }
+        return Biome.GetBiome(t, r);
+    }
 
-   public Tile GetTile(int x_, int y_)
-   {
+    public Tile GetTile(int x_, int y_)
+    {
 
-      Biome biome = GetBiomeType(x_, y_);
+        Biome biome = GetBiomeType(x_, y_);
 
-      List<BiomeTile> tiles = biome.ValidTiles;
-      float chance = Random.Range(0.0f, 1.0f);
-      float currentValue = 0;
-      for (int i = 0; i < tiles.Count; ++i)
-      {
-         currentValue += tiles[i].Chance;
-         if (currentValue >= chance)
-         {
-            return tiles[i].Tile;
-         }
-      }
+        List<BiomeTile> tiles = biome.ValidTiles;
+        float chance = Random.Range(0.0f, 1.0f);
+        float currentValue = 0;
+        for (int i = 0; i < tiles.Count; ++i)
+        {
+            currentValue += tiles[i].Chance;
+            if (currentValue >= chance)
+            {
+                return tiles[i].Tile;
+            }
+        }
 
-      return tiles[0].Tile;
+        return tiles[0].Tile;
 
-   }
+    }
 
-   /// <summary>
-   /// Returns a resource from x y coordinates
-   /// </summary>
-   /// <param name="x_"></param>
-   /// <param name="y_"></param>
-   /// <param name="tile_">Tile to cull resources that cant be placed on it</param>
-   /// <returns>Returns a prefab, or null if the tile is supposed to be empty</returns>
-   public GameResource GetResource(int x_, int y_, Tile tile_)
-   {
-      Biome biome = GetBiomeType(x_, y_);
+    /// <summary>
+    /// Returns a resource from x y coordinates
+    /// </summary>
+    /// <param name="x_"></param>
+    /// <param name="y_"></param>
+    /// <param name="tile_">Tile to cull resources that cant be placed on it</param>
+    /// <returns>Returns a prefab, or null if the tile is supposed to be empty</returns>
+    public GameResource GetResource(int x_, int y_, Tile tile_)
+    {
+        Biome biome = GetBiomeType(x_, y_);
 
-      List<BiomeResource> resources = biome.GetBiomeResources(tile_);
+        List<BiomeResource> resources = biome.GetBiomeResources(tile_);
 
-      float chance = Random.Range(0.0f, 1.0f);
-      float currentValue = 0;
-      for (int i = 0; i < resources.Count; ++i)
-      {
-         currentValue += resources[i].Chance;
-         if (currentValue >= chance)
-         {
-            return resources[i].Resource;
-         }
-      }
+        float chance = Random.Range(0.0f, 1.0f);
+        float currentValue = 0;
+        for (int i = 0; i < resources.Count; ++i)
+        {
+            currentValue += resources[i].Chance;
+            if (currentValue >= chance)
+            {
+                return resources[i].Resource;
+            }
+        }
 
-      return null;
-   }
+        return null;
+    }
 
-   public Tile GenerateLocation(int x_, int y_, GameObject parent_)
-   {
+    public Tile GenerateLocation(int x_, int y_, GameObject parent_)
+    {
 
-      Tile tilePrefab = GetTile(x_, y_);
+        Tile tilePrefab = GetTile(x_, y_);
 
-      GameObject tileObj = (GameObject)GameObject.Instantiate(tilePrefab.gameObject, new Vector3(x_, y_, 0), Quaternion.identity);
-      tileObj.transform.parent = parent_.transform;
-      tileObj.SetActive(true);
+        GameObject tileObj = (GameObject)GameObject.Instantiate(tilePrefab.gameObject, new Vector3(x_, y_, 0), Quaternion.identity);
+        tileObj.transform.parent = parent_.transform;
+        tileObj.SetActive(true);
 
-      Tile tile = tileObj.GetComponent<Tile>();
-      tile.GetNode().set_traversable(tilePrefab.GetNode().get_traversable());
+        Tile tile = tileObj.GetComponent<Tile>();
+        tile.GetNode().set_traversable(tilePrefab.GetNode().get_traversable());
 
-      GameResource resource = GetResource(x_, y_, tilePrefab);
+        GameResource resource = GetResource(x_, y_, tilePrefab);
 
-      if (resource != null)
-      {
-         GameObject resourceObj = (GameObject)GameObject.Instantiate(resource.ResourcePrefab, tileObj.transform.position + new Vector3(0, 0, -0.00001f), Quaternion.identity);
-         resourceObj.transform.parent = parent_.transform;
-         resourceObj.SetActive(true);
-      }
+        if (resource != null)
+        {
+            GameObject resourceObj = (GameObject)GameObject.Instantiate(resource.ResourcePrefab, tileObj.transform.position + new Vector3(0, 0, -0.00001f), Quaternion.identity);
+            resourceObj.transform.parent = parent_.transform;
+            resourceObj.SetActive(true);
+            tile.GetNode().traversable = false;
+        }
 
-      return tile;
+        return tile;
 
-   }
+    }
 
 }
