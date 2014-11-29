@@ -53,6 +53,8 @@ public class Entity : MonoBehaviour
         Tile currentTile = ProcTerrain.instance.GetTile((int)transform.position.x, (int)transform.position.y);
         Tile targetTile = ProcTerrain.instance.GetTile(targetX, targetY);
 
+        Debug.Log("Generate = " + (ProcTerrain.pathfinder != null) + " _ " + (currentTile.GetNode() != null) + " _ " + (targetTile.GetNode() != null));
+
         Array<object> newPath = ProcTerrain.pathfinder.FindPath(currentTile.GetNode(), targetTile.GetNode(),
             (x, y) => 
             {

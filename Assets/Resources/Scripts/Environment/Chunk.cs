@@ -46,7 +46,7 @@ public class Chunk : MonoBehaviour
     void Start()
     {
 
-        SetBaseNodeConnections();
+        
 
     }
 
@@ -75,34 +75,37 @@ public class Chunk : MonoBehaviour
         return tiles[x_][y_];
     }
 
-    public void SetBaseNodeConnections()
+    public void SetBaseNodeConnections(System.Action<Chunk, Tile> funcForApplyingStructure_)
     {
         for (int i = 0; i < width; ++i)
         {
             for (int j = 0; j < height; ++j)
             {
 
+                funcForApplyingStructure_(this, tiles[i][j]);
+
+
                 //Debug.Log("node = " + tiles[i][j].transform.position);
-                for (int a = -1; a < 2; ++a)
-                {
-                    for (int b = -1; b < 2; ++b)
-                    {
-                        if (!(a == 0 && b == 0))
-                        {
-                            int neighbourX = (int)tiles[i][j].transform.position.x + a;
-                            int neighbourY = (int)tiles[i][j].transform.position.y + b;
+                //for (int a = -1; a < 2; ++a)
+                //{
+                //    for (int b = -1; b < 2; ++b)
+                //    {
+                //        if (!(a == 0 && b == 0))
+                //        {
+                //            int neighbourX = (int)tiles[i][j].transform.position.x + a;
+                //            int neighbourY = (int)tiles[i][j].transform.position.y + b;
 
-                            //Debug.Log("node = " + tiles[i][j].transform.position + " attempting neighbour at " + new Vector2(neighbourX, neighbourY));
+                //            //Debug.Log("node = " + tiles[i][j].transform.position + " attempting neighbour at " + new Vector2(neighbourX, neighbourY));
 
-                            Tile tile = ProcTerrain.instance.GetTile(neighbourX, neighbourY);
+                //            Tile tile = ProcTerrain.instance.GetTile(neighbourX, neighbourY);
 
-                            if (tile != null)
-                            {
-                                tiles[i][j].GetNode().AddNeighbour(tile.GetNode(), new haxe.lang.Null<double>());
-                            }
-                        }
-                    }
-                }
+                //            if (tile != null)
+                //            {
+                //                tiles[i][j].GetNode().AddNeighbour(tile.GetNode(), new haxe.lang.Null<double>());
+                //            }
+                //        }
+                //    }
+                //}
 
 
             }

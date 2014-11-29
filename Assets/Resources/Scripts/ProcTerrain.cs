@@ -10,7 +10,8 @@ public class ProcTerrain : MonoBehaviour
 
     public static ProcTerrain instance = null;
 
-    public static IPathfinder pathfinder = new AStar();
+    public static pathPlanner.Map pathMap = new Map(128, 128, 1, 1);
+    public static IPathfinder pathfinder = new pathPlanner.JPS();
 
     public int lloydRelaxCount = 0;
 
@@ -74,6 +75,16 @@ public class ProcTerrain : MonoBehaviour
 
                 chunks[i][j] = chunkObject.AddComponent<Chunk>();
                 chunks[i][j].GenerateTiles(environment);
+                chunks[i][j].SetBaseNodeConnections(
+                (chunk, tile) =>
+                {
+                    int x = (int)tile.transform.position.x;
+                    int y = (int)tile.transform.position.y;
+
+                    tile.SetNode(pathMap.GetNodeByIndex(x, y));
+                }
+                );
+
             }
         }
 

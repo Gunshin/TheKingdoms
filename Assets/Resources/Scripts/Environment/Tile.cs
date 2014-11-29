@@ -20,14 +20,19 @@ public class Tile : MonoBehaviour
     }
 
     Node node;
+    public bool cachedTraversable = true; // only used at beginning to cache traversable. needs cleaning up so i dont have to do this shit
     public Node GetNode()
     {
-        if (node == null)
-        {
-            node = new Node(transform.position.x, transform.position.y, false, new GraphStructureIndirect());
-        }
         return node;
     }
+
+    public Node SetNode(Node node_)
+    {
+        node = node_;
+        node.traversable = cachedTraversable;
+        return node;
+    }
+
 
     void Start()
     {
@@ -96,6 +101,7 @@ public class Tile : MonoBehaviour
             tile.SetName(name);
 
             string traversableValue = jsonData[i]["Traversable"];
+            tile.SetNode(new Node(0, 0, true, new GraphStructureIndirect()));
             tile.GetNode().set_traversable(traversableValue.Equals("True"));
 
             Add(tile);

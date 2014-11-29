@@ -83,7 +83,7 @@ public class Environment
         tileObj.SetActive(true);
 
         Tile tile = tileObj.GetComponent<Tile>();
-        tile.GetNode().set_traversable(tilePrefab.GetNode().get_traversable());
+        tile.cachedTraversable = tilePrefab.GetNode().get_traversable();
 
         GameResource resource = GetResource(x_, y_, tilePrefab);
 
@@ -92,7 +92,7 @@ public class Environment
             GameObject resourceObj = (GameObject)GameObject.Instantiate(resource.ResourcePrefab, tileObj.transform.position + new Vector3(0, 0, -0.00001f), Quaternion.identity);
             resourceObj.transform.parent = parent_.transform;
             resourceObj.SetActive(true);
-            tile.GetNode().traversable = false;
+            tile.cachedTraversable = false;
         }
 
         return tile;
