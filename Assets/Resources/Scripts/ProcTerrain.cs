@@ -29,6 +29,9 @@ public class ProcTerrain : MonoBehaviour
     void Start()
     {
         instance = this;
+
+        pathPlanner.DebugLogger.get_instance().loggingFunction = Debug.Log;
+
         //tilePrefabs = Resources.Load<GameObject>("Prefabs/Tiles/Dirt/Dirt");
         //resources = new GameObject[1];
         //resources[0] = (GameObject)Resources.Load<GameObject>("Prefabs/GameResources/Tree/Prefab_Res_Tree");
@@ -90,10 +93,37 @@ public class ProcTerrain : MonoBehaviour
 
         GameObject entityPrefab = Resources.Load<GameObject>("Prefabs/Entity/Entity");
 
-        int enemyCount = 100;
+        int enemyCount = 0;
 
         for (int i = 0; i < enemyCount; ++i)
             Instantiate(entityPrefab, new Vector3(0, 0, 0), Quaternion.identity);
+
+        Array<object> newPath = ProcTerrain.pathfinder.FindPath(pathMap.GetNodeByIndex(0, 0), pathMap.GetNodeByIndex(100, 50),
+            (x, y) =>
+            {
+                return Mathf.Sqrt(Mathf.Pow((float)(x.x - y.x), 2) + Mathf.Pow((float)(x.y - y.y), 2));
+            }
+        );
+
+        for (int i = 0; i < newPath.length; ++i)
+        {
+            Node node = (Node)newPath[i];
+            Debug.Log("path: " + i + " : " + new Vector2((float)node.get_x(), (float)node.get_y()));
+        }
+
+        for (int i = 0; i < DebugLogger.get_instance().closedSet.length; ++i )
+        {
+            Node node = (Node)DebugLogger.get_instance().closedSet[i];
+            GetTile((int)node.get_x(), (int)node.get_y()).debugColourShow = true;
+            GetTile((int)node.get_x(), (int)node.get_y()).debugColour = Color.black;
+        }
+
+        for (int i = 0; i < DebugLogger.get_instance().openSet.length; ++i)
+        {
+            Node node = (Node)DebugLogger.get_instance().openSet[i];
+            GetTile((int)node.get_x(), (int)node.get_y()).debugColourShow = true;
+            GetTile((int)node.get_x(), (int)node.get_y()).debugColour = Color.white;
+        }
 
         //foreach (VoronoiPolygon polygon in voronoi.Polygons)
         //{

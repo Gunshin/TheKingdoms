@@ -9,6 +9,9 @@ public class Tile : MonoBehaviour
     [SerializeField]
     bool debugShowNeighbours = false;
 
+    public bool debugColourShow = false;
+    public Color debugColour = Color.red;
+
     string tileType;
     public string GetName()
     {
@@ -50,6 +53,19 @@ public class Tile : MonoBehaviour
                 Node neighbour = ((DistanceNode)node.GetNeighbours()[i]).connectedNode;
                 Debug.DrawLine(transform.position, new Vector3((float)neighbour.get_x(), (float)neighbour.get_y(), transform.position.z));
             }
+        }
+
+        if(debugColourShow)
+        {
+            Debug.DrawLine(new Vector3(transform.position.x + 0.5f, transform.position.y + 0.5f, transform.position.z), new Vector3(transform.position.x - 0.5f, transform.position.y + 0.5f, transform.position.z), debugColour);
+            Debug.DrawLine(new Vector3(transform.position.x - 0.5f, transform.position.y + 0.5f, transform.position.z), new Vector3(transform.position.x - 0.5f, transform.position.y - 0.5f, transform.position.z), debugColour);
+            Debug.DrawLine(new Vector3(transform.position.x - 0.5f, transform.position.y - 0.5f, transform.position.z), new Vector3(transform.position.x + 0.5f, transform.position.y - 0.5f, transform.position.z), debugColour);
+            Debug.DrawLine(new Vector3(transform.position.x + 0.5f, transform.position.y - 0.5f, transform.position.z), new Vector3(transform.position.x + 0.5f, transform.position.y + 0.5f, transform.position.z), debugColour);
+        }
+
+        if(GetNode().get_parent() != null)
+        {
+            Debug.DrawLine(transform.position, new Vector3((float)GetNode().get_parent().get_x(), (float)GetNode().get_parent().get_y(), transform.position.z));
         }
     }
 
