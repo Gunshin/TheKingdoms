@@ -15,6 +15,8 @@ public class ProcTerrain : MonoBehaviour
 
     public int lloydRelaxCount = 0;
 
+    [SerializeField]
+    Chunk prefabChunk;
     public int chunkIndexWidth, chunkIndexHeight;
     Chunk[][] chunks;
 
@@ -73,18 +75,13 @@ public class ProcTerrain : MonoBehaviour
             chunks[i] = new Chunk[chunkIndexHeight];
             for (int j = 0; j < chunkIndexHeight; ++j)
             {
-                GameObject chunkObject = new GameObject("Chunk " + i + " _ " + j);
-                chunkObject.transform.position = new Vector3(i * Chunk.GetWidth(), j * Chunk.GetHeight());
+                chunks[i][j] = Instantiate(prefabChunk, new Vector3(i * Chunk.GetWidth(), j * Chunk.GetWidth(), 0), Quaternion.identity) as Chunk;
 
-                chunks[i][j] = chunkObject.AddComponent<Chunk>();
                 chunks[i][j].GenerateTiles(environment);
                 chunks[i][j].SetBaseNodeConnections(
-                (chunk, tile) =>
+                (chunk, tile, indexX, indexY) =>
                 {
-                    int x = (int)tile.transform.position.x;
-                    int y = (int)tile.transform.position.y;
-
-                    tile.SetNode(pathMap.GetNodeByIndex(x, y));
+                    tile.SetNode(pathMap.GetNodeByIndex(indexX, indexY));
                 }
                 );
 
@@ -98,32 +95,32 @@ public class ProcTerrain : MonoBehaviour
         for (int i = 0; i < enemyCount; ++i)
             Instantiate(entityPrefab, new Vector3(0, 0, 0), Quaternion.identity);
 
-        Array<object> newPath = ProcTerrain.pathfinder.FindPath(pathMap.GetNodeByIndex(0, 0), pathMap.GetNodeByIndex(100, 50),
-            (x, y) =>
-            {
-                return Mathf.Sqrt(Mathf.Pow((float)(x.x - y.x), 2) + Mathf.Pow((float)(x.y - y.y), 2));
-            }
-        );
+        //Array<object> newPath = ProcTerrain.pathfinder.FindPath(pathMap.GetNodeByIndex(0, 0), pathMap.GetNodeByIndex(100, 50),
+        //    (x, y) =>
+        //    {
+        //        return Mathf.Sqrt(Mathf.Pow((float)(x.x - y.x), 2) + Mathf.Pow((float)(x.y - y.y), 2));
+        //    }
+        //);
 
-        for (int i = 0; i < newPath.length; ++i)
-        {
-            Node node = (Node)newPath[i];
-            Debug.Log("path: " + i + " : " + new Vector2((float)node.get_x(), (float)node.get_y()));
-        }
+        //for (int i = 0; i < newPath.length; ++i)
+        //{
+        //    Node node = (Node)newPath[i];
+        //    Debug.Log("path: " + i + " : " + new Vector2((float)node.get_x(), (float)node.get_y()));
+        //}
 
-        for (int i = 0; i < DebugLogger.get_instance().closedSet.length; ++i )
-        {
-            Node node = (Node)DebugLogger.get_instance().closedSet[i];
-            GetTile((int)node.get_x(), (int)node.get_y()).debugColourShow = true;
-            GetTile((int)node.get_x(), (int)node.get_y()).debugColour = Color.black;
-        }
+        //for (int i = 0; i < DebugLogger.get_instance().closedSet.length; ++i )
+        //{
+        //    Node node = (Node)DebugLogger.get_instance().closedSet[i];
+        //    GetTile((int)node.get_x(), (int)node.get_y()).debugColourShow = true;
+        //    GetTile((int)node.get_x(), (int)node.get_y()).debugColour = Color.black;
+        //}
 
-        for (int i = 0; i < DebugLogger.get_instance().openSet.length; ++i)
-        {
-            Node node = (Node)DebugLogger.get_instance().openSet[i];
-            GetTile((int)node.get_x(), (int)node.get_y()).debugColourShow = true;
-            GetTile((int)node.get_x(), (int)node.get_y()).debugColour = Color.white;
-        }
+        //for (int i = 0; i < DebugLogger.get_instance().openSet.length; ++i)
+        //{
+        //    Node node = (Node)DebugLogger.get_instance().openSet[i];
+        //    GetTile((int)node.get_x(), (int)node.get_y()).debugColourShow = true;
+        //    GetTile((int)node.get_x(), (int)node.get_y()).debugColour = Color.white;
+        //}
 
         //foreach (VoronoiPolygon polygon in voronoi.Polygons)
         //{

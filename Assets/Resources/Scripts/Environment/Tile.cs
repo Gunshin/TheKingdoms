@@ -4,22 +4,49 @@ using SimpleJSON;
 
 using pathPlanner;
 
-public class Tile : MonoBehaviour
+public class Tile
 {
-    [SerializeField]
+    string tileType;
+    Texture2D originalTexture;
+    public Texture2D GetOriginalTexture()
+    {
+        return originalTexture;
+    }
+
+    // we combine the tile texture and its owned game resource by overlaying the game resource onto a fresh version of the original texture
+    public Texture2D GetFreshTileTexture()
+    {
+        Color[] pixels = originalTexture.GetPixels();
+
+        if (tileResource != null)
+        {
+            Color[] gameResourcePixels = tileResource.GetOriginalTexture().GetPixels();
+            for (int i = 0; i < pixels.Length; ++i)
+            {
+                if (gameResourcePixels[i].a != 0)
+                {
+                    pixels[i] = gameResourcePixels[i];
+                }
+            }
+        }
+
+        Texture2D freshTex = new Texture2D(originalTexture.width, originalTexture.height);
+        freshTex.SetPixels(0, 0, freshTex.width, freshTex.height, pixels);
+
+        freshTex.Apply(false);
+
+        return freshTex;
+    }
+
     bool debugShowNeighbours = false;
 
     public bool debugColourShow = false;
     public Color debugColour = Color.red;
 
-    string tileType;
+    
     public string GetName()
     {
         return tileType;
-    }
-    public void SetName(string name_)
-    {
-        tileType = name_;
     }
 
     Node node;
@@ -36,38 +63,52 @@ public class Tile : MonoBehaviour
         return node;
     }
 
-
-    void Start()
+    GameResource tileResource;
+    public GameResource GetResource()
     {
-
-
-
+        return tileResource;
     }
 
-    void Update()
+    public GameResource SetResource(GameResource resource_)
     {
-        if (debugShowNeighbours)
-        {
-            for (int i = 0; i < node.GetNeighbours().length; ++i)
-            {
-                Node neighbour = ((DistanceNode)node.GetNeighbours()[i]).connectedNode;
-                Debug.DrawLine(transform.position, new Vector3((float)neighbour.get_x(), (float)neighbour.get_y(), transform.position.z));
-            }
-        }
-
-        if(debugColourShow)
-        {
-            Debug.DrawLine(new Vector3(transform.position.x + 0.5f, transform.position.y + 0.5f, transform.position.z), new Vector3(transform.position.x - 0.5f, transform.position.y + 0.5f, transform.position.z), debugColour);
-            Debug.DrawLine(new Vector3(transform.position.x - 0.5f, transform.position.y + 0.5f, transform.position.z), new Vector3(transform.position.x - 0.5f, transform.position.y - 0.5f, transform.position.z), debugColour);
-            Debug.DrawLine(new Vector3(transform.position.x - 0.5f, transform.position.y - 0.5f, transform.position.z), new Vector3(transform.position.x + 0.5f, transform.position.y - 0.5f, transform.position.z), debugColour);
-            Debug.DrawLine(new Vector3(transform.position.x + 0.5f, transform.position.y - 0.5f, transform.position.z), new Vector3(transform.position.x + 0.5f, transform.position.y + 0.5f, transform.position.z), debugColour);
-        }
-
-        if(GetNode().get_parent() != null)
-        {
-            Debug.DrawLine(transform.position, new Vector3((float)GetNode().get_parent().get_x(), (float)GetNode().get_parent().get_y(), transform.position.z));
-        }
+        return tileResource = resource_;
     }
+
+    public Tile(string type_, Texture2D tex_)
+    {
+        tileType = type_;
+        originalTexture = tex_;
+    }
+
+    public Tile Clone()
+    {
+        return new Tile(tileType, originalTexture);
+    }
+
+    //void Update()
+    //{
+    //    if (debugShowNeighbours)
+    //    {
+    //        for (int i = 0; i < node.GetNeighbours().length; ++i)
+    //        {
+    //            Node neighbour = ((DistanceNode)node.GetNeighbours()[i]).connectedNode;
+    //            Debug.DrawLine(transform.position, new Vector3((float)neighbour.get_x(), (float)neighbour.get_y(), transform.position.z));
+    //        }
+    //    }
+
+    //    if(debugColourShow)
+    //    {
+    //        Debug.DrawLine(new Vector3(transform.position.x + 0.5f, transform.position.y + 0.5f, transform.position.z), new Vector3(transform.position.x - 0.5f, transform.position.y + 0.5f, transform.position.z), debugColour);
+    //        Debug.DrawLine(new Vector3(transform.position.x - 0.5f, transform.position.y + 0.5f, transform.position.z), new Vector3(transform.position.x - 0.5f, transform.position.y - 0.5f, transform.position.z), debugColour);
+    //        Debug.DrawLine(new Vector3(transform.position.x - 0.5f, transform.position.y - 0.5f, transform.position.z), new Vector3(transform.position.x + 0.5f, transform.position.y - 0.5f, transform.position.z), debugColour);
+    //        Debug.DrawLine(new Vector3(transform.position.x + 0.5f, transform.position.y - 0.5f, transform.position.z), new Vector3(transform.position.x + 0.5f, transform.position.y + 0.5f, transform.position.z), debugColour);
+    //    }
+
+    //    if(GetNode().get_parent() != null)
+    //    {
+    //        Debug.DrawLine(transform.position, new Vector3((float)GetNode().get_parent().get_x(), (float)GetNode().get_parent().get_y(), transform.position.z));
+    //    }
+    //}
 
     #region static
     static GameObject tileParent = new GameObject("Tiles");
@@ -88,7 +129,7 @@ public class Tile : MonoBehaviour
     {
         TextAsset asset = (TextAsset)Resources.Load(filePath_);
 		
-		GameObject prefab = Resources.Load<GameObject>("Prefabs/Quad");
+		//GameObject prefab = Resources.Load<GameObject>("Prefabs/Quad");
 
         if (asset == null)
         {
@@ -102,23 +143,21 @@ public class Tile : MonoBehaviour
         {
             string name = jsonData[i]["Name"];
 
-            GameObject tileObj = (GameObject)GameObject.Instantiate(prefab);
-            tileObj.name = name;
-            tileObj.SetActive(false);
-            tileObj.transform.parent = tileParent.transform;
+            //GameObject tileObj = (GameObject)GameObject.Instantiate(prefab);
+            //tileObj.name = name;
+            //tileObj.SetActive(false);
+            //tileObj.transform.parent = tileParent.transform;
 
-            MeshRenderer render = tileObj.GetComponent<MeshRenderer>();
-            render.material = new Material(Shader.Find("Transparent/Diffuse"));
+            //MeshRenderer render = tileObj.GetComponent<MeshRenderer>();
+            //render.material = new Material(Shader.Find("Transparent/Diffuse"));
 
-            Texture tex = Resources.Load(jsonData[i]["ImagePath"]) as Texture2D;
-            render.material.mainTexture = tex;
+            Texture2D tex = Resources.Load(jsonData[i]["ImagePath"]) as Texture2D;
+            //render.material.mainTexture = tex;
 
-            Tile tile = tileObj.AddComponent<Tile>();
-            tile.SetName(name);
+            Tile tile = new Tile(name, tex);
 
             string traversableValue = jsonData[i]["Traversable"];
-            tile.SetNode(new Node(0, 0, true, new GraphStructureIndirect()));
-            tile.GetNode().set_traversable(traversableValue.Equals("True"));
+            tile.SetNode(new Node(0, 0, traversableValue.Equals("True"), new GraphStructureIndirect()));
 
             Add(tile);
 

@@ -73,30 +73,34 @@ public class Environment
         return null;
     }
 
-    public Tile GenerateLocation(int x_, int y_, GameObject parent_)
+    public void GenerateChunk(Chunk chunk_)
     {
-
-        Tile tilePrefab = GetTile(x_, y_);
-
-        GameObject tileObj = (GameObject)GameObject.Instantiate(tilePrefab.gameObject, new Vector3(x_, y_, 0), Quaternion.identity);
-        tileObj.transform.parent = parent_.transform;
-        tileObj.SetActive(true);
-
-        Tile tile = tileObj.GetComponent<Tile>();
-        tile.cachedTraversable = tilePrefab.GetNode().get_traversable();
-
-        GameResource resource = GetResource(x_, y_, tilePrefab);
-
-        if (resource != null)
+        for (int i = 0; i < Chunk.GetWidth(); ++i)
         {
-            GameObject resourceObj = (GameObject)GameObject.Instantiate(resource.ResourcePrefab, tileObj.transform.position + new Vector3(0, 0, -0.00001f), Quaternion.identity);
-            resourceObj.transform.parent = parent_.transform;
-            resourceObj.SetActive(true);
-            tile.cachedTraversable = false;
+
+            for (int j = 0; j < Chunk.GetHeight(); ++j)
+            {
+
+                int x = i + (int)chunk_.transform.position.x;
+                int y = j + (int)chunk_.transform.position.y;
+
+                Tile tilePrefab = GetTile(x, y);
+
+                Tile tile = tilePrefab.Clone();
+                tile.cachedTraversable = tilePrefab.GetNode().get_traversable();
+                chunk_.SetTile(i, j, tile);
+
+                GameResource resourcePrefab = GetResource(x, y, tilePrefab);
+
+                if (resourcePrefab != null)
+                {
+                    tile.SetResource(resourcePrefab.Clone());
+                    tile.cachedTraversable = false;
+                }
+
+            }
+
         }
-
-        return tile;
-
     }
 
 }

@@ -6,19 +6,17 @@ using pathPlanner;
 public class Chunk : MonoBehaviour
 {
 
-    static int width = 16, height = 16;
-
-    public static int GetHeight()
-    {
-        return height;
-    }
-
-    public static int GetWidth()
-    {
-        return width;
-    }
-
     Tile[][] tiles;
+    public Tile SetTile(int indexX_, int indexY_, Tile tile_)
+    {
+        return indexX_ < 0 || indexX_ >= Chunk.GetWidth() || indexY_ < 0 || indexY_ >= Chunk.GetHeight() ? null : tiles[indexX_][indexY_] = tile_;
+    }
+    public Tile GetTile(int x_, int y_)
+    {
+        return x_ < 0 || y_ < 0 || x_ >= GetWidth() || y_ >= GetHeight() ? null : tiles[x_][y_];
+    }
+
+    Material cachedMat;
 
     //public Chunk(int x_, int y_, Environment env_)
     //{
@@ -39,14 +37,14 @@ public class Chunk : MonoBehaviour
         for (int i = 0; i < width; ++i)
             tiles[i] = new Tile[height];
 
-        
+        transform.localScale = new Vector3(width, height, 1);
     }
 
     // Use this for initialization
     void Start()
     {
 
-        
+
 
     }
 
@@ -58,31 +56,56 @@ public class Chunk : MonoBehaviour
 
     public void GenerateTiles(Environment e_)
     {
-        for (int i = 0; i < width; ++i)
+
+        e_.GenerateChunk(this);
+
+        cachedMat = GetComponent<MeshRenderer>().material;
+        cachedMat.mainTexture = new Texture2D(Chunk.GetWidth() * tiles[0][0].GetOriginalTexture().width, Chunk.GetHeight() * tiles[0][0].GetOriginalTexture().height, TextureFormat.RGBA32, false);
+        cachedMat.mainTexture.wrapMode = TextureWrapMode.Clamp;
+        cachedMat.mainTexture.filterMode = FilterMode.Point;
+
+        for (int i = 0; i < tiles.Length; ++i)
         {
-            for (int j = 0; j < height; ++j)
+            for (int j = 0; j < tiles.Length; ++j)
             {
-                tiles[i][j] = e_.GenerateLocation(i + (int)transform.position.x, j + (int)transform.position.y, gameObject);
+                UpdateGraphicsOnTileIndex(i, j);
             }
         }
+
+        Resources.UnloadUnusedAssets();
+
     }
 
-    public Tile GetTile(int x_, int y_)
+    public void UpdateGraphicsOnTileIndex(int indexX_, int indexY_)
     {
-        if (x_ < 0 || y_ < 0 || x_ >= GetWidth() || y_ >= GetHeight())
-            return null;
+        Texture2D tileTex = tiles[indexX_][indexY_].GetFreshTileTexture();
+        Color[] pixels = tileTex.GetPixels();
 
-        return tiles[x_][y_];
+        Texture2D chunkTex = cachedMat.mainTexture as Texture2D;
+
+        int current = 0;
+        for (int j = 0; j < tileTex.height; ++j)
+        {
+
+            for (int i = 0; i < tileTex.width; ++i)
+            {
+                chunkTex.SetPixel(i + indexX_ * tileTex.width, j + indexY_ * tileTex.height, pixels[current++]);
+            }
+        }
+
+        chunkTex.Apply(false);
+
+        Resources.UnloadAsset(tileTex);
     }
 
-    public void SetBaseNodeConnections(System.Action<Chunk, Tile> funcForApplyingStructure_)
+    public void SetBaseNodeConnections(System.Action<Chunk, Tile, int, int> funcForApplyingStructure_)
     {
         for (int i = 0; i < width; ++i)
         {
             for (int j = 0; j < height; ++j)
             {
 
-                funcForApplyingStructure_(this, tiles[i][j]);
+                funcForApplyingStructure_(this, tiles[i][j], i, j);
 
 
                 //Debug.Log("node = " + tiles[i][j].transform.position);
@@ -111,4 +134,19 @@ public class Chunk : MonoBehaviour
             }
         }
     }
+
+    #region static
+    static int width = 16, height = 16;
+
+    public static int GetHeight()
+    {
+        return height;
+    }
+
+    public static int GetWidth()
+    {
+        return width;
+    }
+
+    #endregion static
 }

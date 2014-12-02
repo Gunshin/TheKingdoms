@@ -1,7 +1,7 @@
 [
    {
       "Name" : "DeciduousTree",
-      "ImagePath" : "Art/GameResources/Tree/Tree",
+      "ImagePath" : "Art/GameResources/Tree/Tree16",
       "Placement" : [
          "Dirt",
          "Grass"
@@ -24,7 +24,7 @@
    },
    {
       "Name" : "IronOre",
-      "ImagePath" : "Art/GameResources/IronOre/IronOre",
+      "ImagePath" : "Art/GameResources/IronOre/IronOre16",
       "Placement" : [
          "Stone"
       ],
@@ -46,7 +46,7 @@
    },
    {
       "Name" : "CopperOre",
-      "ImagePath" : "Art/GameResources/CopperOre/CopperOre",
+      "ImagePath" : "Art/GameResources/CopperOre/CopperOre16",
       "Placement" : [
          "Stone"
       ],

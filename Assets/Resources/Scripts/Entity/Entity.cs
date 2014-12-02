@@ -53,7 +53,7 @@ public class Entity : MonoBehaviour
         Tile currentTile = ProcTerrain.instance.GetTile((int)transform.position.x, (int)transform.position.y);
         Tile targetTile = ProcTerrain.instance.GetTile(targetX, targetY);
 
-        Debug.Log("generating from: " + currentTile.transform.position + " to: " + targetTile.transform.position);
+        Debug.Log("generating from: " + transform.position + " to: " + transform.position);
         Debug.Log("neighbourstruc: " + (currentTile.GetNode().neighboursStructure != null));
         Debug.Log("Generate = " + (ProcTerrain.pathfinder != null) + " _ " + (currentTile.GetNode() != null) + " _ " + (targetTile.GetNode() != null));
 
@@ -73,6 +73,5 @@ public class Entity : MonoBehaviour
         }
 
         //Debug.Log("target = " + targetX + " " + targetY);
-        Debug.Log("current = " + currentTile.transform.position + " target = " + targetTile.transform.position);
     }
 }

@@ -1,22 +1,22 @@
 [
    {
       "Name" : "Grass",
-      "ImagePath" : "Art/Tiles/Grass/Grass",
+      "ImagePath" : "Art/Tiles/Grass/Grass16",
       "Traversable" : "True"
    },
    {
       "Name" : "Dirt",
-      "ImagePath" : "Art/Tiles/Dirt/Dirt",
+      "ImagePath" : "Art/Tiles/Dirt/Dirt16",
       "Traversable" : "True"
    },
    {
       "Name" : "Stone",
-      "ImagePath" : "Art/Tiles/Stone/Stone",
+      "ImagePath" : "Art/Tiles/Stone/Stone16",
       "Traversable" : "True"
    },
    {
       "Name" : "Water",
-      "ImagePath" : "Art/Tiles/Water/Water",
+      "ImagePath" : "Art/Tiles/Water/Water16",
       "Traversable" : "False"
    }
 ]

@@ -27,6 +27,70 @@ public class ResourceRequirement
 
 public class GameResource
 {
+    
+
+    string name;
+    public string Name
+    {
+        get { return name; }
+    }
+
+    Texture2D originalTexture;
+    public Texture2D GetOriginalTexture()
+    {
+        return originalTexture;
+    }
+
+    List<ResourceRequirement> requirements = new List<ResourceRequirement>();
+    public List<ResourceRequirement> Requirements
+    {
+        get { return requirements; }
+    }
+
+    List<Tile> validTiles;
+    public List<Tile> ValidTiles
+    {
+        get { return validTiles; }
+    }
+
+    float actionTime;
+    public float ActionTime
+    {
+        get { return actionTime; }
+    }
+
+    string productionResource;
+    public string ProductionResource
+    {
+        get { return productionResource; }
+    }
+
+    int productionAmount;
+    public int ProductionAmount
+    {
+        get { return productionAmount; }
+    }
+
+    public GameResource(string name_, Texture2D tex_, List<Tile> validTiles_, float actionTime_, string productionResource_, int productionAmount_)
+    {
+        name = name_;
+        originalTexture = tex_;
+        validTiles = validTiles_;
+        actionTime = actionTime_;
+        productionResource = productionResource_;
+        productionAmount = productionAmount_;
+    }
+
+    public void addRequirement(string type_, string value_)
+    {
+        requirements.Add(new ResourceRequirement(type_, value_));
+    }
+
+    public GameResource Clone()
+    {
+        return new GameResource(name, originalTexture, validTiles, actionTime, productionResource, productionAmount);
+    }
+
     #region static
     static GameObject resourceParent = new GameObject("GameResources");
 
@@ -64,18 +128,17 @@ public class GameResource
             string name = jsonData[i]["Name"];
 
 
-            GameObject prefab = Resources.Load<GameObject>("Prefabs/Quad");
+            //GameObject prefab = Resources.Load<GameObject>("Prefabs/Quad");
 
-            GameObject resourceObj = (GameObject)GameObject.Instantiate(prefab);
-            resourceObj.name = name;
-            resourceObj.SetActive(false);
-            resourceObj.transform.parent = resourceParent.transform;
+            //GameObject resourceObj = (GameObject)GameObject.Instantiate(prefab);
+            //resourceObj.name = name;
+            //resourceObj.SetActive(false);
+            //resourceObj.transform.parent = resourceParent.transform;
 
-            MeshRenderer render = resourceObj.GetComponent<MeshRenderer>();
-            render.material = new Material(Shader.Find("Transparent/Diffuse"));
+            //MeshRenderer render = resourceObj.GetComponent<MeshRenderer>();
+            //render.material = new Material(Shader.Find("Transparent/Diffuse"));
 
-            Texture tex = Resources.Load(jsonData[i]["ImagePath"]) as Texture2D;
-            render.material.mainTexture = tex;
+            Texture2D tex = Resources.Load(jsonData[i]["ImagePath"]) as Texture2D;
 
             float time = jsonData[i]["Action"]["Time"].AsFloat;
             string productionResource = jsonData[i]["Action"]["ProductionResource"];
@@ -88,14 +151,14 @@ public class GameResource
                 validTiles.Add(Tile.GetTile(tileName));
             }
 
-            GameResource resource = new GameResource(name, resourceObj, validTiles, time, productionResource, productionAmount);
+            GameResource resource = new GameResource(name, tex, validTiles, time, productionResource, productionAmount);
 
             for (int j = 0; j < jsonData[i]["Placement"].Count; ++j)
             {
                 string tileName = jsonData[i]["Placement"][j];
                 List<GameResource> resources = null;
                 DictGameResources.TryGetValue(tileName, out resources);
-                Debug.Log("GameResources.Load dictionary key " + tileName + " found as null = " + (resources == null));
+                //Debug.Log("GameResources.Load dictionary key " + tileName + " found as null = " + (resources == null));
                 if (resources != null)
                 {
                     resources.Add(resource);
@@ -143,62 +206,5 @@ public class GameResource
     }
 
     #endregion static
-
-    string name;
-    public string Name
-    {
-        get { return name; }
-    }
-
-    GameObject resourcePrefab;
-    public GameObject ResourcePrefab
-    {
-        get { return resourcePrefab; }
-    }
-
-    List<ResourceRequirement> requirements = new List<ResourceRequirement>();
-    public List<ResourceRequirement> Requirements
-    {
-        get { return requirements; }
-    }
-
-    List<Tile> validTiles;
-    public List<Tile> ValidTiles
-    {
-        get { return validTiles; }
-    }
-
-    float actionTime;
-    public float ActionTime
-    {
-        get { return actionTime; }
-    }
-
-    string productionResource;
-    public string ProductionResource
-    {
-        get { return productionResource; }
-    }
-
-    int productionAmount;
-    public int ProductionAmount
-    {
-        get { return productionAmount; }
-    }
-
-    public GameResource(string name_, GameObject resourcePrefab_, List<Tile> validTiles_, float actionTime_, string productionResource_, int productionAmount_)
-    {
-        name = name_;
-        resourcePrefab = resourcePrefab_;
-        validTiles = validTiles_;
-        actionTime = actionTime_;
-        productionResource = productionResource_;
-        productionAmount = productionAmount_;
-    }
-
-    public void addRequirement(string type_, string value_)
-    {
-        requirements.Add(new ResourceRequirement(type_, value_));
-    }
 
 }
