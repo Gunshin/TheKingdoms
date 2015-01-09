@@ -54,13 +54,17 @@ public class Entity : MonoBehaviour
         Tile targetTile = ProcTerrain.instance.GetTile(targetX, targetY);
 
         Debug.Log("generating from: " + transform.position + " to: " + transform.position);
-        Debug.Log("neighbourstruc: " + (currentTile.GetNode().neighboursStructure != null));
+        Debug.Log("neighbourstruc: " + (currentTile.GetNode().GetNeighboursStructure() != null));
         Debug.Log("Generate = " + (ProcTerrain.pathfinder != null) + " _ " + (currentTile.GetNode() != null) + " _ " + (targetTile.GetNode() != null));
 
-        Array<object> newPath = ProcTerrain.pathfinder.FindPath(currentTile.GetNode(), targetTile.GetNode(),
+        pathPlanner.PathplannerParameter param = new pathPlanner.PathplannerParameter();
+        param.startNode = currentTile.GetNode();
+        param.goalNode = targetTile.GetNode();
+
+        Array<object> newPath = ProcTerrain.pathfinder.FindPath(param,
             (x, y) => 
             {
-                return Mathf.Sqrt(Mathf.Pow((float)(x.x - y.x), 2) + Mathf.Pow((float)(x.y - y.y), 2));
+                return Mathf.Sqrt(Mathf.Pow((float)(x.GetX() - y.GetX()), 2) + Mathf.Pow((float)(x.GetY() - y.GetY()), 2));
             }
         );
 
@@ -69,7 +73,7 @@ public class Entity : MonoBehaviour
         for (int i = 0; i < newPath.length; ++i)
         {
             Node node = (Node)newPath[i];
-            path.Add(new Vector2((float)node.get_x(), (float)node.get_y()));
+            path.Add(new Vector2((float)node.GetX(), (float)node.GetY()));
         }
 
         //Debug.Log("target = " + targetX + " " + targetY);

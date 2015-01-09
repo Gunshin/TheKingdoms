@@ -81,13 +81,13 @@ public class Environment
             for (int j = 0; j < Chunk.GetHeight(); ++j)
             {
 
-                int x = i + (int)chunk_.transform.position.x;
-                int y = j + (int)chunk_.transform.position.y;
+                int x = i + (int)chunk_.GetIndex().x;
+                int y = j + (int)chunk_.GetIndex().y;
 
                 Tile tilePrefab = GetTile(x, y);
 
                 Tile tile = tilePrefab.Clone();
-                tile.cachedTraversable = tilePrefab.GetNode().get_traversable();
+                tile.cachedTraversable = tilePrefab.GetNode().GetTraversable();
                 chunk_.SetTile(i, j, tile);
 
                 GameResource resourcePrefab = GetResource(x, y, tilePrefab);

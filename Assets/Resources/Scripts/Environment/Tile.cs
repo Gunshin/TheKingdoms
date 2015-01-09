@@ -56,10 +56,11 @@ public class Tile
         return node;
     }
 
-    public Node SetNode(Node node_)
+    public Node SetNode(Node node_, bool useCachedTraversable_)
     {
         node = node_;
-        node.traversable = cachedTraversable;
+        if(useCachedTraversable_)
+            node.SetTraversable(cachedTraversable);
         return node;
     }
 
@@ -157,7 +158,7 @@ public class Tile
             Tile tile = new Tile(name, tex);
 
             string traversableValue = jsonData[i]["Traversable"];
-            tile.SetNode(new Node(0, 0, traversableValue.Equals("True"), new GraphStructureIndirect()));
+            tile.SetNode(new Node(0, 0, traversableValue.Equals("True"), new GraphStructureIndirect()), false);
 
             Add(tile);
 

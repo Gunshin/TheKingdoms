@@ -18,62 +18,45 @@ public class Chunk : MonoBehaviour
 
     Material cachedMat;
 
-    //public Chunk(int x_, int y_, Environment env_)
-    //{
-    //    x = x_;
-    //    y = y_;
-
-    //    environment = env_;
-
-    //    chunkObject = new GameObject("Chunk " + x + " _ " + y);
-    //    chunkObject.transform.Translate(new Vector3(x * GetWidth(), y * GetHeight()));
-
-    //    Start();
-    //}
-
     void Awake()
     {
         tiles = new Tile[width][];
         for (int i = 0; i < width; ++i)
+        {
             tiles[i] = new Tile[height];
+        }
 
         transform.localScale = new Vector3(width, height, 1);
+
     }
 
     // Use this for initialization
     void Start()
     {
-
-
-
+        transform.Translate(new Vector3(8, 8, 0));
     }
 
     // Update is called once per frame
     void Update()
     {
-
     }
 
-    public void GenerateTiles(Environment e_)
+    public void GenerateTiles(System.Action<Chunk, Tile[][]> funcForGeneratingTiles_)
     {
+        funcForGeneratingTiles_(this, tiles);
+    }
 
-        e_.GenerateChunk(this);
+    public void GenerateTexture()
+    {
+        //if(cachedMat != null && cachedMat.mainTexture != null)
+        //{
+        //    Resources.UnloadAsset(cachedMat.mainTexture);
+        //}
 
         cachedMat = GetComponent<MeshRenderer>().material;
         cachedMat.mainTexture = new Texture2D(Chunk.GetWidth() * tiles[0][0].GetOriginalTexture().width, Chunk.GetHeight() * tiles[0][0].GetOriginalTexture().height, TextureFormat.RGBA32, false);
         cachedMat.mainTexture.wrapMode = TextureWrapMode.Clamp;
         cachedMat.mainTexture.filterMode = FilterMode.Point;
-
-        for (int i = 0; i < tiles.Length; ++i)
-        {
-            for (int j = 0; j < tiles.Length; ++j)
-            {
-                UpdateGraphicsOnTileIndex(i, j);
-            }
-        }
-
-        Resources.UnloadUnusedAssets();
-
     }
 
     public void UpdateGraphicsOnTileIndex(int indexX_, int indexY_)
@@ -133,6 +116,11 @@ public class Chunk : MonoBehaviour
 
             }
         }
+    }
+
+    public Vector2 GetIndex()
+    {
+        return new Vector2((transform.position.x - 8) / Chunk.GetWidth(), (transform.position.y - 8) / Chunk.GetHeight());
     }
 
     #region static

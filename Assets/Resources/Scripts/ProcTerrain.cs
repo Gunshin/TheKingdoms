@@ -10,8 +10,8 @@ public class ProcTerrain : MonoBehaviour
 
     public static ProcTerrain instance = null;
 
-    public static pathPlanner.Map pathMap = new Map(128, 128, 1, 1);
-    public static IPathfinder pathfinder = new pathPlanner.JPS();
+    public static pathPlanner.GraphGridMap pathMap = new GraphGridMap(128, 128, 1, 1);
+    public static IPathfinder pathfinder;
 
     public int lloydRelaxCount = 0;
 
@@ -32,7 +32,9 @@ public class ProcTerrain : MonoBehaviour
     {
         instance = this;
 
-        pathPlanner.DebugLogger.get_instance().loggingFunction = Debug.Log;
+        pathfinder = new pathPlanner.JPS(pathMap);
+
+        pathPlanner.DebugLogger.GetInstance().loggingFunction = Debug.Log;
 
         //tilePrefabs = Resources.Load<GameObject>("Prefabs/Tiles/Dirt/Dirt");
         //resources = new GameObject[1];
@@ -77,11 +79,25 @@ public class ProcTerrain : MonoBehaviour
             {
                 chunks[i][j] = Instantiate(prefabChunk, new Vector3(i * Chunk.GetWidth(), j * Chunk.GetWidth(), 0), Quaternion.identity) as Chunk;
 
-                chunks[i][j].GenerateTiles(environment);
+                chunks[i][j].GenerateTiles(
+                    (chunk, tiles) => 
+                    {
+                        environment.GenerateChunk(chunk);
+
+                        chunk.GenerateTexture();
+
+                        for (int x = 0; x < tiles.Length; ++x)
+                        {
+                            for (int y = 0; y < tiles[x].Length; ++y)
+                            {
+                                chunk.UpdateGraphicsOnTileIndex(x, y);
+                            }
+                        }
+                    });
                 chunks[i][j].SetBaseNodeConnections(
                 (chunk, tile, indexX, indexY) =>
                 {
-                    tile.SetNode(pathMap.GetNodeByIndex(indexX, indexY));
+                    tile.SetNode(pathMap.GetNodeByIndex(indexX, indexY), true);
                 }
                 );
 

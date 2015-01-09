@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
-using System.Collections;
+using UnityEngine.UI;
+using System.Collections.Generic;
 
 using pathPlanner;
 
@@ -23,15 +24,262 @@ public class PathPlannerTester : MonoBehaviour
     [SerializeField]
     string scenarioPath;
 
-    Map map = null;
+    GraphGridMap map = null;
     Scenario[] scenarios = null;
+
+    [SerializeField]
+    Chunk prefabChunk;
+    Chunk[][] chunks;
+
+    pathPlanner.IPathfinder pathfinder;
+
+    [SerializeField]
+    LineRenderer prefabLinerenderer;
+
+    [SerializeField]
+    Slider actionSlider;
+
+    [SerializeField]
+    GameObject start;
+    [SerializeField]
+    GameObject end;
+
+    void Awake()
+    {
+    }
 
     // Use this for initialization
     void Start()
     {
-        //map = LoadMap(mapPath);
-        //scenarios = LoadScenarios(scenarioPath);
+        map = LoadMap(mapPath);
+        scenarios = LoadScenarios(scenarioPath);
 
+        pathfinder = new pathPlanner.JPS(map);
+
+        #region generatemap
+        int chunkIndexWidth = Mathf.CeilToInt(((float)map.GetWidth()) / Chunk.GetWidth());
+        int chunkIndexHeight = Mathf.CeilToInt(((float)map.GetHeight()) / Chunk.GetHeight());
+
+        Debug.Log("chunk: " + chunkIndexWidth + " _ " + chunkIndexHeight);
+
+        chunks = new Chunk[chunkIndexWidth][];
+        for (int i = 0; i < chunkIndexWidth; ++i)
+        {
+            chunks[i] = new Chunk[chunkIndexHeight];
+        }
+
+        for (int j = 0; j < chunkIndexHeight; ++j)
+        {
+            for (int i = 0; i < chunkIndexWidth; ++i)
+            {
+                chunks[i][j] = Instantiate(prefabChunk, new Vector3(i * Chunk.GetWidth(), j * Chunk.GetWidth(), 0), Quaternion.identity) as Chunk;
+
+                chunks[i][j].GenerateTiles(
+                    (chunk, tiles) =>
+                    {
+                        for (int y = 0; y < Chunk.GetHeight(); ++y)
+                        {
+                            for (int x = 0; x < Chunk.GetWidth(); ++x)
+                            {
+                                Node node = map.GetNodeByIndex(i * Chunk.GetWidth() + x, j * Chunk.GetHeight() + y);
+                                if (node != null)
+                                {
+                                    if (node.GetTraversable() == true)
+                                    {
+                                        tiles[x][y] = Tile.GetTile("Grass").Clone();
+                                    }
+                                    else
+                                    {
+                                        tiles[x][y] = Tile.GetTile("Water").Clone();
+                                    }
+                                }
+                            }
+                        }
+
+                        chunk.GenerateTexture();
+
+                        for (int x = 0; x < tiles.Length; ++x)
+                        {
+                            for (int y = 0; y < tiles[x].Length; ++y)
+                            {
+                                if (tiles[x][y] != null)
+                                {
+                                    chunk.UpdateGraphicsOnTileIndex(x, y);
+                                }
+                            }
+                        }
+                    });
+                chunks[i][j].SetBaseNodeConnections(
+                (chunk, tile, indexX, indexY) =>
+                {
+                    if (tile != null)
+                    {
+                        tile.SetNode(map.GetNodeByIndex(indexX, indexY), false);
+                    }
+                }
+                );
+
+            }
+        }
+        #endregion generatemap
+
+        Scenario s = scenarios[906];
+
+        Debug.Log("scen: " + s.sx + " _ " + s.sy + " _ " + s.gx + " _ " + s.gy);
+        RunPath(s);
+
+        //GenerateNewPath();
+
+
+        //for (int i = 0; i < DebugLogger.get_instance().closedSet.length; ++i)
+        //{
+        //    Node node = (Node)DebugLogger.get_instance().closedSet[i];
+        //    GetTile((int)node.get_x(), (int)node.get_y()).debugColourShow = true;
+        //    GetTile((int)node.get_x(), (int)node.get_y()).debugColour = Color.black;
+        //}
+
+        //for (int i = 0; i < DebugLogger.get_instance().openSet.length; ++i)
+        //{
+        //    Node node = (Node)DebugLogger.get_instance().openSet[i];
+        //    GetTile((int)node.get_x(), (int)node.get_y()).debugColourShow = true;
+        //    GetTile((int)node.get_x(), (int)node.get_y()).debugColour = Color.white;
+        //}
+
+    }
+
+    public void SliderOnValueChanged(float value_)
+    {
+        int index = (int)value_;
+
+        for(int i = 0; i < actions.Length; ++i)
+        {
+            if(i < index)
+            {
+                actions[i].SetActive(true);
+            }
+            else
+            {
+                actions[i].SetActive(false);
+            }
+        }
+
+    }
+
+    void RunPath(Scenario scen_)
+    {
+        pathPlanner.PathplannerParameter param = new pathPlanner.PathplannerParameter();
+        param.startNode = map.GetNodeByIndex(scen_.sx, scen_.sy);
+        param.goalNode = map.GetNodeByIndex(scen_.gx, scen_.gy);
+
+        start.transform.position = new Vector3((float)param.startNode.GetX() + 0.5f, (float)param.startNode.GetY() + 0.5f, -0.1f);
+        end.transform.position = new Vector3((float)param.goalNode.GetX() + 0.5f, (float)param.goalNode.GetY() + 0.5f, -0.1f);
+
+        Array<object> newPath = pathfinder.FindPath(param,
+            (x, y) =>
+            {
+                return Mathf.Sqrt(Mathf.Pow((float)(x.GetX() - y.GetX()), 2) + Mathf.Pow((float)(x.GetY() - y.GetY()), 2));
+            }
+        );
+
+        if (actions != null)
+        {
+            for (int i = 0; i < actions.Length; ++i)
+            {
+                Destroy(actions[i]);
+            }
+        }
+
+        //lines = new LineRenderer[newPath.length - 1];
+
+        Array<object> actionList = DebugLogger.GetInstance().GetActionList();
+        int addToOpen = DebugLogger.GetInstance().GetActionKeysValue("AddToOpen").value;
+        int addToClosed = DebugLogger.GetInstance().GetActionKeysValue("AddToClosed").value;
+        int expand = DebugLogger.GetInstance().GetActionKeysValue("Expand").value;
+        int setParent = DebugLogger.GetInstance().GetActionKeysValue("SetParent").value;
+
+        List<GameObject> tempObjectList = new List<GameObject>();
+
+        for (int i = 0; i < actionList.length; ++i)
+        {
+            int actionType = ((Action)actionList[i]).actionType;
+            if(actionType == addToOpen)
+            {
+
+            }
+            else if (actionType == addToClosed)
+            {
+
+            }
+            else if (actionType == expand)
+            {
+
+            }
+            else if (actionType == setParent)
+            {
+                LineRenderer rend = Instantiate(prefabLinerenderer) as LineRenderer;
+                tempObjectList.Add(rend.gameObject);
+                rend.name = "path: " + i;
+
+                Node child = (Node)Reflect.field(actionList[i], "primaryNode");
+                Node parent = (Node)Reflect.field(actionList[i], "secondaryNode");
+
+                rend.SetPosition(0, new Vector3((float)child.GetX() + 0.5f, (float)child.GetY() + 0.5f, -0.05f));
+                rend.SetPosition(1, new Vector3((float)parent.GetX() + 0.5f, (float)parent.GetY() + 0.5f, -0.05f));
+
+                Debug.LogError("action: " + i);
+            }
+            //}
+            //    lines[i] = Instantiate(prefabLinerenderer) as LineRenderer;
+            //    lines[i].name = "path: " + i;
+            //    lines[i].SetPosition(0, new Vector3((float)node.GetX() + 0.5f, (float)node.GetY() + 0.5f, -0.05f));
+            //    lines[i].SetPosition(1, new Vector3((float)((Node)newPath[i + 1]).GetX() + 0.5f, (float)((Node)newPath[i + 1]).GetY() + 0.5f, -0.05f));
+            //}
+        }
+
+        actions = tempObjectList.ToArray();
+
+        actionSlider.maxValue = actions.Length;
+        Debug.Log("valid path: " + (newPath != null));
+        Debug.LogError("action count: " + DebugLogger.GetInstance().GetActionList().length);
+    }
+
+    GameObject[] actions;
+    //List<LineRenderer> lines = new List<LineRenderer>();
+
+    public void GenerateNewPath()
+    {
+        pathPlanner.DebugLogger.GetInstance().ResetActionList();
+
+        Node startNode = GetRandomTraversableNode(map);
+        Node endNode = GetRandomTraversableNode(map);
+
+        Scenario scen = new Scenario();
+        IndexOfNode startIndex = map.GetIndexOfNode(startNode);
+        scen.sx = startIndex.x;
+        scen.sy = startIndex.y;
+
+        IndexOfNode goalIndex = map.GetIndexOfNode(endNode);
+        scen.gx = goalIndex.x;
+        scen.gy = goalIndex.y;
+
+        RunPath(scen);
+    }
+
+    Node GetRandomTraversableNode(GraphGridMap map_)
+    {
+        Debug.Log("width: " + map.GetWidth() + " _ height: " + map.GetHeight());
+        Node node = null;
+        while(node == null)
+        {
+            Node temp = map.GetNodeByIndex(Random.Range(0, map.GetWidth()), Random.Range(0, map.GetHeight()));
+            if(temp.GetTraversable() == true)
+            {
+                node = temp;
+            }
+        }
+
+        Debug.Log("x: " + node.GetX() + " _ y: " + node.GetY());
+        return node;
     }
 
     // Update is called once per frame
@@ -40,82 +288,88 @@ public class PathPlannerTester : MonoBehaviour
 
     }
 
-    public pathPlanner.Map LoadMap(string filePath_)
-	{
-		string[] fin = System.IO.File.ReadAllLines(filePath_);
+    public pathPlanner.GraphGridMap LoadMap(string filePath_)
+    {
+        string[] fin = System.IO.File.ReadAllLines(filePath_);
 
         int height = int.Parse(fin[1].Split(' ')[1]);
-		int width = int.Parse(fin[2].Split(' ')[1]);
+        int width = int.Parse(fin[2].Split(' ')[1]);
 
-		Map map = new Map(width, height, 1, 1);
+        pathPlanner.GraphGridMap map = new pathPlanner.GraphGridMap(width, height, 1, 1);
 
-			for(int y = 4; y < fin.Length; ++y)
-			{
-                
-				for (int x = 0; x < width; ++x)
-				{
-					char value = fin[y][x];
-					switch(value)
-					{
-						case '.':
-						case 'G':
-						case 'S':
-							map.GetNodeByIndex(x, y - 4).traversable = true;
-                            break;
-							
-						case '@':
-						case 'O':
-						case 'W':
-						case 'T':
-							map.GetNodeByIndex(x, y - 4).traversable = false;
-                            break;
-							
-						default:
-							Debug.Log("something went wrong in loading map: " + filePath_ + " : " + value);
-                            break;
-							
-					}
-					
-				}
-			}
-
-		return map;
-	}
-	
-	public Scenario[] LoadScenarios(string filePath_)
-	{
-		string[] fin = System.IO.File.ReadAllLines(filePath_);
-		
-        // only the top line of the scenarios file is not a scenario
-		Scenario[] segmentArray = new Scenario[fin.Length - 1];
-
-        for(int i = 1; i < fin.Length; ++i)
+        for (int y = 4; y < fin.Length; ++y)
         {
-			
-				/* each line in the scenario file is split up into segements seperated by a whitespace which represent different things.
-				 * [0] Bucket (not sure)
-				 * [1] map file path
-				 * [2] map width
-				 * [3] map height
-				 * [4] start x coord
-				 * [5] start y coord
-				 * [6] goal x coord
-				 * [7] goal y coord
-				 * [8] optimal length
-				 */
-				string[] segments = fin[i].Split(' ');
-				segmentArray[i - 1] = new Scenario{
-					width = int.Parse(segments[2]),
-					height = int.Parse(segments[3]),
-					sx = int.Parse(segments[4]),
-					sy = int.Parse(segments[5]),
-					gx = int.Parse(segments[6]),
-					gy = int.Parse(segments[7]),
-					optimalLength = float.Parse(segments[8])
-				};
-				
-			}
-		
-		return segmentArray;
-	}
+
+            for (int x = 0; x < width; ++x)
+            {
+                char value = fin[y][x];
+                switch (value)
+                {
+                    case '.':
+                    case 'G':
+                    case 'S':
+                        map.GetNodeByIndex(x, y - 4).SetTraversable(true);
+                        break;
+
+                    case '@':
+                    case 'O':
+                    case 'W':
+                    case 'T':
+                        map.GetNodeByIndex(x, y - 4).SetTraversable(false);
+                        break;
+
+                    default:
+                        Debug.Log("something went wrong in loading map: " + filePath_ + " : " + value);
+                        break;
+
+                }
+
+            }
+        }
+
+        return map;
+    }
+
+    public Scenario[] LoadScenarios(string filePath_)
+    {
+        string[] fin = System.IO.File.ReadAllLines(filePath_);
+
+        // not all lines in the scenarios file are scenarios
+        List<Scenario> segmentList = new List<Scenario>();
+
+        for (int i = 1; i < fin.Length; ++i)
+        {
+
+            /* each line in the scenario file is split up into segements seperated by a whitespace which represent different things.
+             * [0] Bucket (not sure)
+             * [1] map file path
+             * [2] map width
+             * [3] map height
+             * [4] start x coord
+             * [5] start y coord
+             * [6] goal x coord
+             * [7] goal y coord
+             * [8] optimal length
+             */
+            if (fin[i].Length > 0)
+            {
+                string[] segments = fin[i].Split('\t');
+                if (segments.Length == 9) // scenarios files sometimes have empty lines
+                {
+                    segmentList.Add(new Scenario
+                    {
+                        width = int.Parse(segments[2]),
+                        height = int.Parse(segments[3]),
+                        sx = int.Parse(segments[4]),
+                        sy = int.Parse(segments[5]),
+                        gx = int.Parse(segments[6]),
+                        gy = int.Parse(segments[7]),
+                        optimalLength = float.Parse(segments[8])
+                    });
+                }
+            }
+        }
+
+        return segmentList.ToArray();
+    }
 }
