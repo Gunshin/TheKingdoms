@@ -158,7 +158,7 @@ public class Tile
             Tile tile = new Tile(name, tex);
 
             string traversableValue = jsonData[i]["Traversable"];
-            tile.SetNode(new Node(0, 0, traversableValue.Equals("True"), new GraphStructureIndirect()), false);
+            tile.SetNode(new Node(new Position(0, 0), traversableValue.Equals("True"), new GraphStructureIndirect()), false);
 
             Add(tile);
 

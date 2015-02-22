@@ -54,7 +54,11 @@ public class PathPlannerTester : MonoBehaviour
         map = LoadMap(mapPath);
         scenarios = LoadScenarios(scenarioPath);
 
-        pathfinder = new pathPlanner.JPS(map);
+        pathfinder = new pathPlanner.JPSO(map,
+            (x, y) =>
+            {
+                return Mathf.Sqrt(Mathf.Pow((float)(x.GetX() - y.GetX()), 2) + Mathf.Pow((float)(x.GetY() - y.GetY()), 2));
+            });
 
         #region generatemap
         int chunkIndexWidth = Mathf.CeilToInt(((float)map.GetWidth()) / Chunk.GetWidth());
@@ -123,7 +127,7 @@ public class PathPlannerTester : MonoBehaviour
         }
         #endregion generatemap
 
-        Scenario s = scenarios[906];
+        Scenario s = scenarios[0];
 
         Debug.Log("scen: " + s.sx + " _ " + s.sy + " _ " + s.gx + " _ " + s.gy);
         RunPath(s);
@@ -171,16 +175,10 @@ public class PathPlannerTester : MonoBehaviour
         param.startNode = map.GetNodeByIndex(scen_.sx, scen_.sy);
         param.goalNode = map.GetNodeByIndex(scen_.gx, scen_.gy);
 
-        start.transform.position = new Vector3((float)param.startNode.GetX() + 0.5f, (float)param.startNode.GetY() + 0.5f, -0.1f);
-        end.transform.position = new Vector3((float)param.goalNode.GetX() + 0.5f, (float)param.goalNode.GetY() + 0.5f, -0.1f);
+        start.transform.position = new Vector3((float)param.startNode.GetPosition().GetX() + 0.5f, (float)param.startNode.GetPosition().GetY() + 0.5f, -0.1f);
+        end.transform.position = new Vector3((float)param.goalNode.GetPosition().GetX() + 0.5f, (float)param.goalNode.GetPosition().GetY() + 0.5f, -0.1f);
 
-        Array<object> newPath = pathfinder.FindPath(param,
-            (x, y) =>
-            {
-                return Mathf.Sqrt(Mathf.Pow((float)(x.GetX() - y.GetX()), 2) + Mathf.Pow((float)(x.GetY() - y.GetY()), 2));
-            }
-        );
-
+        actionOn = true;
         if (actions != null)
         {
             for (int i = 0; i < actions.Length; ++i)
@@ -189,13 +187,40 @@ public class PathPlannerTester : MonoBehaviour
             }
         }
 
+        pathOn = false;
+        if (path != null)
+        {
+            for (int i = 0; i < path.Length; ++i)
+            {
+                Destroy(path[i]);
+            }
+        }
+
+        Array<object> newPath = pathfinder.FindPath(param);
+        List<GameObject> tempPathList = new List<GameObject>();
+        for(int i = 0; i < newPath.length - 1; ++i)
+        {
+            LineRenderer rend = Instantiate(prefabLinerenderer) as LineRenderer;
+            rend.gameObject.SetActive(false);
+            tempPathList.Add(rend.gameObject);
+            rend.name = "path: " + i;
+
+            Node child = (Node)newPath[i];
+            Node parent = (Node)newPath[i + 1];
+
+            rend.SetPosition(0, new Vector3((float)child.GetPosition().GetX() + 0.5f, (float)child.GetPosition().GetY() + 0.5f, -0.05f));
+            rend.SetPosition(1, new Vector3((float)parent.GetPosition().GetX() + 0.5f, (float)parent.GetPosition().GetY() + 0.5f, -0.05f));
+        }
+
+        path = tempPathList.ToArray();
         //lines = new LineRenderer[newPath.length - 1];
 
-        Array<object> actionList = DebugLogger.GetInstance().GetActionList();
-        int addToOpen = DebugLogger.GetInstance().GetActionKeysValue("AddToOpen").value;
-        int addToClosed = DebugLogger.GetInstance().GetActionKeysValue("AddToClosed").value;
-        int expand = DebugLogger.GetInstance().GetActionKeysValue("Expand").value;
-        int setParent = DebugLogger.GetInstance().GetActionKeysValue("SetParent").value;
+        Array<object> actionList = pathfinder.GetActionOutput().GetActionList();
+        Debug.LogError("action list: " + actionList.length);
+        int addToOpen = pathfinder.GetActionOutput().GetActionKeysValue("AddToOpen").value;
+        int addToClosed = pathfinder.GetActionOutput().GetActionKeysValue("AddToClosed").value;
+        int expand = pathfinder.GetActionOutput().GetActionKeysValue("Expand").value;
+        int setParent = pathfinder.GetActionOutput().GetActionKeysValue("SetParent").value;
 
         List<GameObject> tempObjectList = new List<GameObject>();
 
@@ -218,13 +243,13 @@ public class PathPlannerTester : MonoBehaviour
             {
                 LineRenderer rend = Instantiate(prefabLinerenderer) as LineRenderer;
                 tempObjectList.Add(rend.gameObject);
-                rend.name = "path: " + i;
+                rend.name = "actionParent: " + i;
 
                 Node child = (Node)Reflect.field(actionList[i], "primaryNode");
                 Node parent = (Node)Reflect.field(actionList[i], "secondaryNode");
 
-                rend.SetPosition(0, new Vector3((float)child.GetX() + 0.5f, (float)child.GetY() + 0.5f, -0.05f));
-                rend.SetPosition(1, new Vector3((float)parent.GetX() + 0.5f, (float)parent.GetY() + 0.5f, -0.05f));
+                rend.SetPosition(0, new Vector3((float)child.GetPosition().GetX() + 0.5f, (float)child.GetPosition().GetY() + 0.5f, -0.05f));
+                rend.SetPosition(1, new Vector3((float)parent.GetPosition().GetX() + 0.5f, (float)parent.GetPosition().GetY() + 0.5f, -0.05f));
 
                 Debug.LogError("action: " + i);
             }
@@ -239,28 +264,45 @@ public class PathPlannerTester : MonoBehaviour
         actions = tempObjectList.ToArray();
 
         actionSlider.maxValue = actions.Length;
-        Debug.Log("valid path: " + (newPath != null));
-        Debug.LogError("action count: " + DebugLogger.GetInstance().GetActionList().length);
+        Debug.LogError("valid path: " + (newPath != null) + " _ " + path.Length);
+        Debug.LogError("action count: " + pathfinder.GetActionOutput().GetActionList().length);
     }
 
     GameObject[] actions;
+    GameObject[] path;
     //List<LineRenderer> lines = new List<LineRenderer>();
+
+    bool pathOn = false;
+    public void TogglePath()
+    {
+        pathOn = !pathOn;
+        for (int i = 0; i < path.Length; ++i)
+        {
+            path[i].SetActive(pathOn);
+        }
+    }
+
+    bool actionOn = true;
+    public void ToggleActions()
+    {
+        actionOn = !actionOn;
+        for (int i = 0; i < actions.Length; ++i)
+        {
+            actions[i].SetActive(actionOn);
+        }
+    }
 
     public void GenerateNewPath()
     {
-        pathPlanner.DebugLogger.GetInstance().ResetActionList();
-
         Node startNode = GetRandomTraversableNode(map);
         Node endNode = GetRandomTraversableNode(map);
 
         Scenario scen = new Scenario();
-        IndexOfNode startIndex = map.GetIndexOfNode(startNode);
-        scen.sx = startIndex.x;
-        scen.sy = startIndex.y;
+        scen.sx = startNode.GetPosition().GetX();
+        scen.sy = startNode.GetPosition().GetY();
 
-        IndexOfNode goalIndex = map.GetIndexOfNode(endNode);
-        scen.gx = goalIndex.x;
-        scen.gy = goalIndex.y;
+        scen.gx = endNode.GetPosition().GetX();
+        scen.gy = endNode.GetPosition().GetY();
 
         RunPath(scen);
     }
@@ -278,7 +320,7 @@ public class PathPlannerTester : MonoBehaviour
             }
         }
 
-        Debug.Log("x: " + node.GetX() + " _ y: " + node.GetY());
+        Debug.Log("x: " + node.GetPosition().GetX() + " _ y: " + node.GetPosition().GetY());
         return node;
     }
 
@@ -295,7 +337,7 @@ public class PathPlannerTester : MonoBehaviour
         int height = int.Parse(fin[1].Split(' ')[1]);
         int width = int.Parse(fin[2].Split(' ')[1]);
 
-        pathPlanner.GraphGridMap map = new pathPlanner.GraphGridMap(width, height, 1, 1);
+        pathPlanner.GraphGridMap map = new pathPlanner.GraphGridMap(width, height);
 
         for (int y = 4; y < fin.Length; ++y)
         {

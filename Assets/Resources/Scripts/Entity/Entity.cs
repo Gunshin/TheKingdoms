@@ -61,19 +61,14 @@ public class Entity : MonoBehaviour
         param.startNode = currentTile.GetNode();
         param.goalNode = targetTile.GetNode();
 
-        Array<object> newPath = ProcTerrain.pathfinder.FindPath(param,
-            (x, y) => 
-            {
-                return Mathf.Sqrt(Mathf.Pow((float)(x.GetX() - y.GetX()), 2) + Mathf.Pow((float)(x.GetY() - y.GetY()), 2));
-            }
-        );
+        Array<object> newPath = ProcTerrain.pathfinder.FindPath(param);
 
         path.Clear();
 
         for (int i = 0; i < newPath.length; ++i)
         {
             Node node = (Node)newPath[i];
-            path.Add(new Vector2((float)node.GetX(), (float)node.GetY()));
+            path.Add(new Vector2((float)node.GetPosition().GetX(), (float)node.GetPosition().GetY()));
         }
 
         //Debug.Log("target = " + targetX + " " + targetY);

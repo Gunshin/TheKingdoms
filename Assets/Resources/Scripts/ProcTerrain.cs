@@ -10,7 +10,7 @@ public class ProcTerrain : MonoBehaviour
 
     public static ProcTerrain instance = null;
 
-    public static pathPlanner.GraphGridMap pathMap = new GraphGridMap(128, 128, 1, 1);
+    public static pathPlanner.GraphGridMap pathMap = new GraphGridMap(128, 128);
     public static IPathfinder pathfinder;
 
     public int lloydRelaxCount = 0;
@@ -32,9 +32,12 @@ public class ProcTerrain : MonoBehaviour
     {
         instance = this;
 
-        pathfinder = new pathPlanner.JPS(pathMap);
+        pathfinder = new pathPlanner.JPS(pathMap, (x, y) =>
+        {
+            return Mathf.Sqrt(Mathf.Pow((float)(x.GetX() - y.GetX()), 2) + Mathf.Pow((float)(x.GetY() - y.GetY()), 2));
+        });
 
-        pathPlanner.DebugLogger.GetInstance().loggingFunction = Debug.Log;
+        //pathPlanner.DebugLogger.GetInstance().loggingFunction = Debug.Log;
 
         //tilePrefabs = Resources.Load<GameObject>("Prefabs/Tiles/Dirt/Dirt");
         //resources = new GameObject[1];
