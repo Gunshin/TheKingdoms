@@ -127,7 +127,7 @@ public class PathPlannerTester : MonoBehaviour
         }
         #endregion generatemap
 
-        Scenario s = scenarios[0];
+        Scenario s = scenarios[366];
 
         Debug.Log("scen: " + s.sx + " _ " + s.sy + " _ " + s.gx + " _ " + s.gy);
         RunPath(s);
@@ -205,60 +205,56 @@ public class PathPlannerTester : MonoBehaviour
             tempPathList.Add(rend.gameObject);
             rend.name = "path: " + i;
 
-            Node child = (Node)newPath[i];
-            Node parent = (Node)newPath[i + 1];
+            Position child = (Position)newPath[i];
+            Position parent = (Position)newPath[i + 1];
 
-            rend.SetPosition(0, new Vector3((float)child.GetPosition().GetX() + 0.5f, (float)child.GetPosition().GetY() + 0.5f, -0.05f));
-            rend.SetPosition(1, new Vector3((float)parent.GetPosition().GetX() + 0.5f, (float)parent.GetPosition().GetY() + 0.5f, -0.05f));
+            rend.SetPosition(0, new Vector3((float)child.GetX() + 0.5f, (float)child.GetY() + 0.5f, -0.05f));
+            rend.SetPosition(1, new Vector3((float)parent.GetX() + 0.5f, (float)parent.GetY() + 0.5f, -0.05f));
         }
 
         path = tempPathList.ToArray();
         //lines = new LineRenderer[newPath.length - 1];
-
+        Debug.LogError("THIS OBJECT IS A " + pathfinder.GetActionOutput().GetType());
         Array<object> actionList = pathfinder.GetActionOutput().GetActionList();
+        Array<object> actionTypes = pathfinder.GetActionOutput().GetActionTypes();
+
+        for (int i = 0; i < actionTypes.length; ++i )
+        {
+            Debug.LogError((string)actionTypes[i]);
+        }
+
         Debug.LogError("action list: " + actionList.length);
-        int addToOpen = pathfinder.GetActionOutput().GetActionKeysValue("AddToOpen").value;
-        int addToClosed = pathfinder.GetActionOutput().GetActionKeysValue("AddToClosed").value;
-        int expand = pathfinder.GetActionOutput().GetActionKeysValue("Expand").value;
-        int setParent = pathfinder.GetActionOutput().GetActionKeysValue("SetParent").value;
 
         List<GameObject> tempObjectList = new List<GameObject>();
 
         for (int i = 0; i < actionList.length; ++i)
         {
-            int actionType = ((Action)actionList[i]).actionType;
-            if(actionType == addToOpen)
+            Action action = ((Action)actionList[i]);
+            string actionType = action.actionType;
+            if (actionType == "AddToOpen")
             {
 
             }
-            else if (actionType == addToClosed)
+            else if (actionType == "Explored")
             {
 
             }
-            else if (actionType == expand)
+            else if (actionType == "Expand")
             {
 
             }
-            else if (actionType == setParent)
+            else if (actionType == "SetParent")
             {
                 LineRenderer rend = Instantiate(prefabLinerenderer) as LineRenderer;
                 tempObjectList.Add(rend.gameObject);
                 rend.name = "actionParent: " + i;
 
-                Node child = (Node)Reflect.field(actionList[i], "primaryNode");
-                Node parent = (Node)Reflect.field(actionList[i], "secondaryNode");
+                Position child = action.primary;
+                Position parent = action.secondary;
 
-                rend.SetPosition(0, new Vector3((float)child.GetPosition().GetX() + 0.5f, (float)child.GetPosition().GetY() + 0.5f, -0.05f));
-                rend.SetPosition(1, new Vector3((float)parent.GetPosition().GetX() + 0.5f, (float)parent.GetPosition().GetY() + 0.5f, -0.05f));
-
-                Debug.LogError("action: " + i);
+                rend.SetPosition(0, new Vector3((float)child.GetX() + 0.5f, (float)child.GetY() + 0.5f, -0.05f));
+                rend.SetPosition(1, new Vector3((float)parent.GetX() + 0.5f, (float)parent.GetY() + 0.5f, -0.05f));
             }
-            //}
-            //    lines[i] = Instantiate(prefabLinerenderer) as LineRenderer;
-            //    lines[i].name = "path: " + i;
-            //    lines[i].SetPosition(0, new Vector3((float)node.GetX() + 0.5f, (float)node.GetY() + 0.5f, -0.05f));
-            //    lines[i].SetPosition(1, new Vector3((float)((Node)newPath[i + 1]).GetX() + 0.5f, (float)((Node)newPath[i + 1]).GetY() + 0.5f, -0.05f));
-            //}
         }
 
         actions = tempObjectList.ToArray();
@@ -330,9 +326,26 @@ public class PathPlannerTester : MonoBehaviour
 
     }
 
+    string[] ReadLines(string filePath_)
+    {
+        System.IO.File.SetAttributes(Application.dataPath + filePath_, System.IO.File.GetAttributes(Application.dataPath + filePath_) & ~System.IO.FileAttributes.ReadOnly);
+
+        List<string> lines = new List<string>();
+        System.IO.StreamReader sr = new System.IO.StreamReader(Application.dataPath + filePath_);
+
+        while(!sr.EndOfStream)
+        {
+            lines.Add(sr.ReadLine());
+        }
+
+        return lines.ToArray();
+    }
+
     public pathPlanner.GraphGridMap LoadMap(string filePath_)
     {
-        string[] fin = System.IO.File.ReadAllLines(filePath_);
+        Debug.LogError(filePath_);
+
+        string[] fin = ReadLines(filePath_);
 
         int height = int.Parse(fin[1].Split(' ')[1]);
         int width = int.Parse(fin[2].Split(' ')[1]);
@@ -374,7 +387,7 @@ public class PathPlannerTester : MonoBehaviour
 
     public Scenario[] LoadScenarios(string filePath_)
     {
-        string[] fin = System.IO.File.ReadAllLines(filePath_);
+        string[] fin = ReadLines(filePath_);
 
         // not all lines in the scenarios file are scenarios
         List<Scenario> segmentList = new List<Scenario>();

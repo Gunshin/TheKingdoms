@@ -54,6 +54,7 @@ public class Chunk : MonoBehaviour
         //}
 
         cachedMat = GetComponent<MeshRenderer>().material;
+        Debug.LogError("___: " + (tiles[0][0].GetOriginalTexture() != null) + " _ ");
         cachedMat.mainTexture = new Texture2D(Chunk.GetWidth() * tiles[0][0].GetOriginalTexture().width, Chunk.GetHeight() * tiles[0][0].GetOriginalTexture().height, TextureFormat.RGBA32, false);
         cachedMat.mainTexture.wrapMode = TextureWrapMode.Clamp;
         cachedMat.mainTexture.filterMode = FilterMode.Point;
