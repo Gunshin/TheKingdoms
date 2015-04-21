@@ -9,8 +9,12 @@
 		],
       "ValidResources" : [
          {
-            "Name" : "DeciduousTree",
-            "Chance" : 0.1
+            "Name" : "Tree",
+            "Chance" : 0.05
+         },
+         {
+            "Name" : "TreeApple",
+            "Chance" : 0.05
          }
       ],
 		"Requirements" :
@@ -46,8 +50,12 @@
 		],
       "ValidResources" : [
          {
-            "Name" : "DeciduousTree",
-            "Chance" : 0.1
+            "Name" : "Tree",
+            "Chance" : 0.05
+         },
+         {
+            "Name" : "TreeApple",
+            "Chance" : 0.05
          },
          {
             "Name" : "IronOre",
@@ -87,8 +95,12 @@
 		],
       "ValidResources" : [
          {
-            "Name" : "DeciduousTree",
-            "Chance" : 0.1
+            "Name" : "Tree",
+            "Chance" : 0.05
+         },
+         {
+            "Name" : "TreeApple",
+            "Chance" : 0.05
          },
          {
             "Name" : "IronOre",

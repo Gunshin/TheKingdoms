@@ -32,7 +32,7 @@ public class ProcTerrain : MonoBehaviour
     {
         instance = this;
 
-        pathfinder = new pathPlanner.JPS(pathMap, (x, y) =>
+        pathfinder = new pathPlanner.JPSO(pathMap, (x, y) =>
         {
             return Mathf.Sqrt(Mathf.Pow((float)(x.GetX() - y.GetX()), 2) + Mathf.Pow((float)(x.GetY() - y.GetY()), 2));
         });
@@ -97,19 +97,19 @@ public class ProcTerrain : MonoBehaviour
                             }
                         }
                     });
-                chunks[i][j].SetBaseNodeConnections(
-                (chunk, tile, indexX, indexY) =>
-                {
-                    tile.SetNode(pathMap.GetNodeByIndex(indexX, indexY), true);
-                }
-                );
+                //chunks[i][j].SetBaseNodeConnections(
+                //(chunk, tile, indexX, indexY) =>
+                //{
+                //    tile.SetNode(pathMap.GetNodeByIndex(indexX, indexY), true);
+                //}
+                //);
 
             }
         }
 
         GameObject entityPrefab = Resources.Load<GameObject>("Prefabs/Entity/Entity");
 
-        int enemyCount = 0;
+        int enemyCount = 100;
 
         for (int i = 0; i < enemyCount; ++i)
             Instantiate(entityPrefab, new Vector3(0, 0, 0), Quaternion.identity);
@@ -172,6 +172,20 @@ public class ProcTerrain : MonoBehaviour
     public Chunk GetChunk(int x_, int y_)
     {
         return chunks[x_][y_];
+    }
+
+    public Chunk GetChunk(Tile tile_)
+    {
+
+        int indexX = ((int)tile_.Position.x) / Chunk.GetWidth();
+        int indexY = ((int)tile_.Position.y) / Chunk.GetHeight();
+
+        if (indexX >= 0 && indexX < chunkIndexWidth && indexY >= 0 && indexY < chunkIndexHeight)
+        {
+            return chunks[indexX][indexY];
+        }
+
+        return null;
     }
 
     public Tile GetTile(int x_, int y_)

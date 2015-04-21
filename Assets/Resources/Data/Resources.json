@@ -1,6 +1,6 @@
 [
    {
-      "Name" : "DeciduousTree",
+      "Name" : "Tree",
       "ImagePath" : "Art/GameResources/Tree/Tree16",
       "Placement" : [
          "Dirt",
@@ -18,8 +18,31 @@
             }
          ],
          "Time" : 10,
-         "ProductionResource" : "DeciduousLog",
+         "ProductionResource" : "Log",
          "ProductionAmount" : 5
+      }
+   },
+   {
+      "Name" : "TreeApple",
+      "ImagePath" : "Art/GameResources/TreeApple/TreeApple16",
+      "Placement" : [
+         "Dirt",
+         "Grass"
+      ],
+      "Action" : {
+         "Requirements" : [
+            {
+               "Type" : "Worker",
+               "Value" : "Woodcutter"
+            },
+            {
+               "Type" : "Equipment",
+               "Value" : "LumberAxe"
+            }
+         ],
+         "Time" : 10,
+         "ProductionResource" : "Apple",
+         "ProductionAmount" : 1
       }
    },
    {

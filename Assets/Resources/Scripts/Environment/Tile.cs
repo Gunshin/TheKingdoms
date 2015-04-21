@@ -49,20 +49,20 @@ public class Tile
         return tileType;
     }
 
-    Node node;
+    //Node node;
     public bool cachedTraversable = true; // only used at beginning to cache traversable. needs cleaning up so i dont have to do this shit
-    public Node GetNode()
-    {
-        return node;
-    }
+    //public Node GetNode()
+    //{
+    //    return node;
+    //}
 
-    public Node SetNode(Node node_, bool useCachedTraversable_)
-    {
-        node = node_;
-        if(useCachedTraversable_)
-            node.SetTraversable(cachedTraversable);
-        return node;
-    }
+    //public Node SetNode(Node node_, bool useCachedTraversable_)
+    //{
+    //    node = node_;
+    //    if(useCachedTraversable_)
+    //        node.SetTraversable(cachedTraversable);
+    //    return node;
+    //}
 
     GameResource tileResource;
     public GameResource GetResource()
@@ -73,6 +73,17 @@ public class Tile
     public GameResource SetResource(GameResource resource_)
     {
         return tileResource = resource_;
+    }
+
+    Vector2 position;
+    public Vector2 Position
+    {
+        get { return position; }
+        set 
+        { 
+            position = value;
+            tileResource.Position = value;
+        }
     }
 
     public Tile(string type_, Texture2D tex_)
@@ -158,7 +169,8 @@ public class Tile
             Tile tile = new Tile(name, tex);
 
             string traversableValue = jsonData[i]["Traversable"];
-            tile.SetNode(new Node(new Position(0, 0), traversableValue.Equals("True"), new GraphStructureIndirect()), false);
+            //tile.SetNode(new Node(new Position(0, 0), traversableValue.Equals("True"), new GraphStructureIndirect()), false);
+            tile.cachedTraversable = traversableValue.Equals("True");
 
             Add(tile);
 

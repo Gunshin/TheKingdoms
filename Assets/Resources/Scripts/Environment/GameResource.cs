@@ -33,6 +33,7 @@ public class GameResource
     public string Name
     {
         get { return name; }
+        set { name = value; }
     }
 
     Texture2D originalTexture;
@@ -71,6 +72,19 @@ public class GameResource
         get { return productionAmount; }
     }
 
+    Vector2 position;
+    public Vector2 Position
+    {
+        get { return position; }
+        set
+        {
+            HTNWorldManager.instance.GetGlobalState().UpdateRelation("At", Name, position.ToString(), false);
+            position = value;
+            HTNWorldManager.instance.GetGlobalState().UpdateRelation("At", Name, position.ToString(), true);
+        }
+
+    }
+
     public GameResource(string name_, Texture2D tex_, List<Tile> validTiles_, float actionTime_, string productionResource_, int productionAmount_)
     {
         name = name_;
@@ -79,16 +93,22 @@ public class GameResource
         actionTime = actionTime_;
         productionResource = productionResource_;
         productionAmount = productionAmount_;
+
     }
 
-    public void addRequirement(string type_, string value_)
+    public void AddRequirement(string type_, string value_)
     {
         requirements.Add(new ResourceRequirement(type_, value_));
     }
 
     public GameResource Clone()
     {
-        return new GameResource(name, originalTexture, validTiles, actionTime, productionResource, productionAmount);
+        GameResource res = new GameResource(HTNPlanner.GenerateUniqueID(Name), originalTexture, validTiles, actionTime, productionResource, productionAmount);
+
+        HTNWorldManager.instance.GetGlobalState().UpdateRelation("Type", Name, res.Name, true); // this sets up a type list of ids eg. all 'IronOre' ids are set into a single list
+        HTNWorldManager.instance.GetGlobalState().AddObject(res.Name, res);
+
+        return res;
     }
 
     #region static
@@ -175,7 +195,7 @@ public class GameResource
             {
                 string type = jsonData[i]["Action"]["Requirements"][j]["Type"];
                 string value = jsonData[i]["Action"]["Requirements"][j]["Value"];
-                resource.addRequirement(type, value);
+                resource.AddRequirement(type, value);
             }
 
             ListGameResources.Add(resource);

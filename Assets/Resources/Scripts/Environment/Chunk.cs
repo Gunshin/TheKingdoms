@@ -54,7 +54,6 @@ public class Chunk : MonoBehaviour
         //}
 
         cachedMat = GetComponent<MeshRenderer>().material;
-        Debug.LogError("___: " + (tiles[0][0].GetOriginalTexture() != null) + " _ ");
         cachedMat.mainTexture = new Texture2D(Chunk.GetWidth() * tiles[0][0].GetOriginalTexture().width, Chunk.GetHeight() * tiles[0][0].GetOriginalTexture().height, TextureFormat.RGBA32, false);
         cachedMat.mainTexture.wrapMode = TextureWrapMode.Clamp;
         cachedMat.mainTexture.filterMode = FilterMode.Point;
@@ -62,6 +61,8 @@ public class Chunk : MonoBehaviour
 
     public void UpdateGraphicsOnTileIndex(int indexX_, int indexY_)
     {
+
+        // TODO: do i really need a fresh texture here? what purpose does it serve?
         Texture2D tileTex = tiles[indexX_][indexY_].GetFreshTileTexture();
         Color[] pixels = tileTex.GetPixels();
 
@@ -79,49 +80,51 @@ public class Chunk : MonoBehaviour
 
         chunkTex.Apply(false);
 
+#if !UNITY_EDITOR
         Resources.UnloadAsset(tileTex);
+#endif
     }
 
-    public void SetBaseNodeConnections(System.Action<Chunk, Tile, int, int> funcForApplyingStructure_)
-    {
-        for (int i = 0; i < width; ++i)
-        {
-            for (int j = 0; j < height; ++j)
-            {
+    //public void SetBaseNodeConnections(System.Action<Chunk, Tile, int, int> funcForApplyingStructure_)
+    //{
+    //    for (int i = 0; i < width; ++i)
+    //    {
+    //        for (int j = 0; j < height; ++j)
+    //        {
 
-                funcForApplyingStructure_(this, tiles[i][j], i, j);
-
-
-                //Debug.Log("node = " + tiles[i][j].transform.position);
-                //for (int a = -1; a < 2; ++a)
-                //{
-                //    for (int b = -1; b < 2; ++b)
-                //    {
-                //        if (!(a == 0 && b == 0))
-                //        {
-                //            int neighbourX = (int)tiles[i][j].transform.position.x + a;
-                //            int neighbourY = (int)tiles[i][j].transform.position.y + b;
-
-                //            //Debug.Log("node = " + tiles[i][j].transform.position + " attempting neighbour at " + new Vector2(neighbourX, neighbourY));
-
-                //            Tile tile = ProcTerrain.instance.GetTile(neighbourX, neighbourY);
-
-                //            if (tile != null)
-                //            {
-                //                tiles[i][j].GetNode().AddNeighbour(tile.GetNode(), new haxe.lang.Null<double>());
-                //            }
-                //        }
-                //    }
-                //}
+    //            funcForApplyingStructure_(this, tiles[i][j], i, j);
 
 
-            }
-        }
-    }
+    //            //Debug.Log("node = " + tiles[i][j].transform.position);
+    //            //for (int a = -1; a < 2; ++a)
+    //            //{
+    //            //    for (int b = -1; b < 2; ++b)
+    //            //    {
+    //            //        if (!(a == 0 && b == 0))
+    //            //        {
+    //            //            int neighbourX = (int)tiles[i][j].transform.position.x + a;
+    //            //            int neighbourY = (int)tiles[i][j].transform.position.y + b;
+
+    //            //            //Debug.Log("node = " + tiles[i][j].transform.position + " attempting neighbour at " + new Vector2(neighbourX, neighbourY));
+
+    //            //            Tile tile = ProcTerrain.instance.GetTile(neighbourX, neighbourY);
+
+    //            //            if (tile != null)
+    //            //            {
+    //            //                tiles[i][j].GetNode().AddNeighbour(tile.GetNode(), new haxe.lang.Null<double>());
+    //            //            }
+    //            //        }
+    //            //    }
+    //            //}
+
+
+    //        }
+    //    }
+    //}
 
     public Vector2 GetIndex()
     {
-        return new Vector2((transform.position.x - 8) / Chunk.GetWidth(), (transform.position.y - 8) / Chunk.GetHeight());
+        return new Vector2((transform.position.x) / Chunk.GetWidth(), (transform.position.y) / Chunk.GetHeight());
     }
 
     #region static

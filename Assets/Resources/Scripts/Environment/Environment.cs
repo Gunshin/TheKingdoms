@@ -73,6 +73,7 @@ public class Environment
         return null;
     }
 
+
     public void GenerateChunk(Chunk chunk_)
     {
         for (int i = 0; i < Chunk.GetWidth(); ++i)
@@ -81,13 +82,13 @@ public class Environment
             for (int j = 0; j < Chunk.GetHeight(); ++j)
             {
 
-                int x = i + (int)chunk_.GetIndex().x;
-                int y = j + (int)chunk_.GetIndex().y;
+                int x = i + (int)chunk_.GetIndex().x * Chunk.GetWidth();
+                int y = j + (int)chunk_.GetIndex().y * Chunk.GetHeight();
 
                 Tile tilePrefab = GetTile(x, y);
 
                 Tile tile = tilePrefab.Clone();
-                tile.cachedTraversable = tilePrefab.GetNode().GetTraversable();
+                tile.cachedTraversable = tilePrefab.cachedTraversable;//tilePrefab.GetNode().GetTraversable();
                 chunk_.SetTile(i, j, tile);
 
                 GameResource resourcePrefab = GetResource(x, y, tilePrefab);
@@ -96,6 +97,7 @@ public class Environment
                 {
                     tile.SetResource(resourcePrefab.Clone());
                     tile.cachedTraversable = false;
+                    tile.Position = new Vector2(x, y); // sets the resources position too
                 }
 
             }
